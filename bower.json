@@ -1,0 +1,22 @@
+{
+  "name": "mborg",
+  "description": "",
+  "main": "index.js",
+  "authors": [
+    "narsenico <not_amon-dev@yahoo.it>"
+  ],
+  "license": "ISC",
+  "moduleType": [],
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "bbbbb",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap-treeview": "~1.2.0"
+  }
+}
