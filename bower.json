@@ -17,6 +17,7 @@
     "tests"
   ],
   "dependencies": {
-    "bootstrap-treeview": "~1.2.0"
+    "bootstrap-treeview": "~1.2.0",
+    "underscore": "~1.8.3"
   }
 }

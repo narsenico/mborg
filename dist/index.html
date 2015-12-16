@@ -42,13 +42,14 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-4" id="tree_container"></div>
-            <div class="col-md-8">Content</div>
+            <div class="col-md-8" id="links_container"></div>
         </div>
     </div>
     <!-- -->
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/bootstrap-treeview.min.js"></script>
+    <script src="js/underscore-min.js"></script>
     <script type="text/javascript">
     var _root;
 
@@ -70,8 +71,20 @@
     });
 
     function nodeSelected(event, data) {
-        // Your logic goes here
-        console.log(event.target, data);
+        var id = 'links_' + data.parentId + '_' + data.nodeId;
+        // se non esiste creo il blcco dei link
+        if (!$('#' + id).length) {
+            $('<ul class="links">').attr('id', id).append(
+                _.map(data.links, function(link) {
+                    return $('<li>').append(
+                        $('<a>').append(
+                            $('<img>').attr('src', link.icon))
+                        .append(link.text).attr('href', link.href));
+                })
+            ).appendTo('#links_container');
+        }
+        //nascondo tutto tranne il blocco corrente
+        $('ul.links').hide().filter('#' + id).show();
     }
 
     function upload() {
@@ -113,7 +126,7 @@
 
     function parseLink($dt, parent) {
         var link = $dt.find('a').first();
-        (parent.links || (parent.links = [])).push( createLink(link.attr('href'), link.attr('icon'), link.html()) );
+        (parent.links || (parent.links = [])).push(createLink(link.attr('href'), link.attr('icon'), link.html()));
     }
 
     function createFolder(text) {

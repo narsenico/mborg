@@ -28,8 +28,16 @@ gulp.task('jquery', function() {
         }));
 });
 
+gulp.task('underscore', function() {
+    gulp.src(['bower_components/underscore/underscore*'])
+        .pipe(gulp.dest('dist/js'))
+        .pipe(debug({
+            title: 'cp -> '
+        }));
+});
+
 gulp.task('serve', serve('dist'));
-gulp.task('copy', ['bootstrap', 'jquery']);
+gulp.task('copy', ['bootstrap', 'jquery', 'underscore']);
 
 gulp.task('default', function() {
     console.log('gulp serve');
