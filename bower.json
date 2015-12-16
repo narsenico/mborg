@@ -18,6 +18,8 @@
   ],
   "dependencies": {
     "bootstrap-treeview": "~1.2.0",
-    "underscore": "~1.8.3"
+    "underscore": "~1.8.3",
+    "rxjs": "~4.0.7",
+    "bootstrap": "~3.3.6"
   }
 }

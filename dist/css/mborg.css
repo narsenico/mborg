@@ -1,3 +1,17 @@
 body {
 	font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
 }
+.links ul {
+	clear: both;
+}
+.links img {
+	width: 16px;
+	height: 16px;
+	margin-right: 10px;
+}
+.link-options a {
+	color: #DDDDDD;
+}
+.link-options a:hover {
+	color: #AAAAAA;
+}
