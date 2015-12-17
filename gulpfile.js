@@ -50,7 +50,9 @@ gulp.task('jquery-bar-rating', function() {
 });
 
 gulp.task('rxjs', function() {
-    gulp.src(['bower_components/rxjs/dist/rx.lite.min.js'])
+    gulp.src(['bower_components/rxjs/dist/rx.lite.min.js',
+        'bower_components/rxjs/dist/rx.lite.js',
+        'bower_components/rxjs/dist/rx.lite.map'])
         .pipe(gulp.dest('dist/js'))
         .pipe(debug({
             title: 'cp -> '

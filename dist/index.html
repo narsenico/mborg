@@ -46,7 +46,8 @@
         <div class="row">
             <div class="col-md-4" id="tree_container"></div>
             <div class="col-md-8" id="links_container">
-                <div class="pull-right">
+                <div class="link-commands">
+                    <span id="info"></span>
                     <a href="#"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add</a>
                 </div>
                 <ul class="list-group" id="links"></ul>
@@ -82,7 +83,6 @@
     <script type="text/javascript" src="js/rx.lite.min.js"></script>
     <script type="text/javascript">
     var _root;
-    var linkGroupTemplate;
     var linkItemTemplate;
 
     $(function load() {
@@ -90,63 +90,49 @@
         linkItemTemplate = Handlebars.compile($('#link-item-template').html());
         //
         prepareSearch();
-        // leggo i dati da /data/tree.json
-        $.getJSON('/data/tree.json')
-            .then(function(data) {
-                _root = data;
-                $('<div class="tree">')
-                    .appendTo('#tree_container')
-                    .treeview({
-                        data: _root
-                    })
-                    .on('nodeSelected', nodeSelected);
-                makeLinks($('#links'), _root);
-            })
-            .fail(function() {
-                alert('error retrieving tree data');
-            });
+        // // leggo i dati da /data/tree.json
+        // $.getJSON('/data/tree.json')
+        //     .then(function(data) {
+        //         _root = data;
+        //         $('<div class="tree" id="tree">')
+        //             .appendTo('#tree_container')
+        //             .treeview({
+        //                 data: _root
+        //             })
+        //             .on('nodeSelected', nodeSelected);
+        //         makeLinks($('#links'), _root);
+        //     })
+        //     .fail(function() {
+        //         alert('error retrieving tree data');
+        //     });
+        fake();
     });
 
     function makeLinks(container, nodes) {
-        // TODO rifare ordinando i link
-        for (var ii = 0; ii < nodes.length; ii++) {
-            if (nodes[ii].links && nodes[ii].links.length > 0) {
-                for (var jj = 0; jj < nodes[ii].links.length; jj++) {
-                    $(linkItemTemplate(nodes[ii].links[jj]))
-                        .find('.link-stars select')
-                        .barrating({
-                            initialRating: nodes[ii].links[jj].rating,
-                            onSelect: ratingChanged
-                        })
-                        .end()
-                        .appendTo(container);
-                }
-            }
-            if (nodes[ii].nodes && nodes[ii].nodes.length > 0) {
-                makeLinks(container, nodes[ii].nodes);
-            }
-        }
-        return container;
+        _.chain((function extractLinks(nodes) {
+                return _.flatten(
+                    _.map(nodes, function(node) {
+                        return (node.links || [])
+                            .concat(extractLinks(node.nodes));
+                    })
+                );
+            })(nodes))
+            .sortBy('text')
+            .each(function createDom(link) {
+                $(linkItemTemplate(link))
+                    .data('source', link)
+                    .find('.link-stars select')
+                    .barrating({
+                        initialRating: link.rating,
+                        onSelect: ratingChanged
+                    })
+                    .end()
+                    .appendTo(container);
+            });
     }
 
     function nodeSelected(event, data) {
-        // // TODO: NO! creare un componente riutilizzabile per ogni link, in modo da poterlo usare nelle ricerche
-        // var id = 'links_' + (_.isUndefined(data.parentId) ? '' : data.parentId) + '_' + data.nodeId;
-        // // se non esiste creo il blcco dei link
-        // if (!$('#' + id).length) {
-        //     $(linkGroupTemplate(data))
-        //         .find('.link-stars select').each(function() {
-        //             $(this).barrating({
-        //                 initialRating: $(this).parent().attr('data-rating') || 1,
-        //                 onSelect: ratingChanged
-        //             });
-        //         })
-        //         .end()
-        //         .appendTo('#links_container');
-        // }
-        // //nascondo tutto tranne il blocco corrente
-        // $('.links').hide().filter('#' + id).show();
-        //console.log('nodeSelected', data.folderId)
+        $('#info').html('');
         $('.bookmark').hide().filter('[data-folder-id=' + data.folderId + ']').show();
     }
 
@@ -157,6 +143,10 @@
     }
 
     function upload() {
+        // TODO: gestire upload file
+    }
+
+    function fake() {
         // simulo upload di un file bookmarks nel formato NETSCAPE-Bookmark-file-1
         $.get('/data/bookmarks_16_12_15.html')
             .then(function(data) {
@@ -169,7 +159,7 @@
                 // TODO aggiornare _root e salvare /data/tree.json
                 // in questa simulazione ricarico il controllo
                 _root = root;
-                $('<div class="tree">')
+                $('<div class="tree" id="tree">')
                     .appendTo('#tree_container')
                     .treeview({
                         data: _root
@@ -219,49 +209,51 @@
 
     function prepareSearch() {
         var searchEl = $('#txtsearch');
-        // ritorna array di { node, link } che soddisfano i termini di ricerca
-        var searchTree = function(re, nodes) {
-            return _.flatten(
-                _.map(nodes, function(node) {
-                    return _.chain(node.links).filter(function(link) {
-                            // TODO: migliorare la ricerca
-                            return re.test(link.text);
-                        }).map(function(link) {
-                            return {
-                                node: node,
-                                link: link
-                            };
-                        }).value()
-                        .concat(searchTree(re, node.nodes));
-                })
-            );
-        };
-
-        var keyups = Rx.Observable.merge(
+        Rx.Observable.merge(
                 Rx.Observable.fromEvent(searchEl, 'keyup'),
                 Rx.Observable.fromEvent(searchEl, 'blur'))
             .map(function(e) {
-                return e.target.value.trim().toUpperCase();
+                return e.target.value.trim();
             })
             .filter(function(text) {
-                return text.length === 0 || text.length >= 3;
+                return text.length === 0 || text.length >= 2;
             })
-            .debounce(500) //se non cambia più niente per 500ms prosegue
-            .distinctUntilChanged(); //esclude gli eventi diversi
-
-        var suggestions = keyups.flatMapLatest(function(term) {
-            if (_.isEmpty(term)) {
-                return Rx.Observable.from([true]);
-            } else {
-                var found = searchTree(new RegExp(term, 'i'), _root);
-                return Rx.Observable.from([found]);
-            }
-        });
-
-        suggestions.subscribe(function(res) {
-            console.log(res);
-        });
+            .debounce(500) //se non succede più niente per 500ms prosegue
+            .distinctUntilChanged() //solo quando cambia
+            .subscribe(
+                function(term) {
+                    // in ogni caso deleleziono la cartella
+                    _.each($('#tree').treeview(true).getSelected(),
+                        function(node) {
+                            $('#tree').treeview('unselectNode', node);
+                        });
+                    if (_.isEmpty(term)) {
+                        // TODO: selezionare l'ultimo nodo selezionato
+                        $('#info').html('');
+                        $('.bookmark').hide();
+                    } else {
+                        var re = new RegExp(term, 'i');
+                        $('.bookmark')
+                            .hide()
+                            .filter(function(index, el) {
+                                // TODO: cercare anche in altre proprietà
+                                return re.test($(el).data('source').text);
+                            })
+                            .do(function() {
+                                $('#info').html('Found ' + this.length);
+                            })
+                            .show();
+                    }
+                });
     }
+
+    //esegue una funziona all'interno della chain
+    $.fn.do = function(func) {
+        if (func) {
+            func.apply(this);
+        }
+        return this;
+    } 
     </script>
 </body>
 

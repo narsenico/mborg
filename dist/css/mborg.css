@@ -2,10 +2,6 @@ body {
     font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-.links ul {
-    clear: both;
-}
-
 .bookmark img {
     width: 16px;
     height: 16px;
