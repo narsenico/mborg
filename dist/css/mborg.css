@@ -1,17 +1,25 @@
 body {
-	font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
+
 .links ul {
-	clear: both;
+    clear: both;
 }
-.links img {
-	width: 16px;
-	height: 16px;
-	margin-right: 10px;
+
+.bookmark img {
+    width: 16px;
+    height: 16px;
+    margin-right: 10px;
 }
+
 .link-options a {
-	color: #DDDDDD;
+    color: #CCCCCC;
 }
+
 .link-options a:hover {
-	color: #AAAAAA;
+    color: #337AB7;
+}
+
+.link-stars {
+    margin-top: 4px;
 }

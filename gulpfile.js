@@ -36,8 +36,29 @@ gulp.task('underscore', function() {
         }));
 });
 
+gulp.task('jquery-bar-rating', function() {
+    gulp.src(['bower_components/jquery-bar-rating/dist/*'])
+        .pipe(gulp.dest('dist/js'))
+        .pipe(debug({
+            title: 'cp -> '
+        }));
+    gulp.src(['bower_components/jquery-bar-rating/dist/themes/bootstrap-stars.css'])
+        .pipe(gulp.dest('dist/css'))
+        .pipe(debug({
+            title: 'cp -> '
+        }));
+});
+
+gulp.task('rxjs', function() {
+    gulp.src(['bower_components/rxjs/dist/rx.lite.min.js'])
+        .pipe(gulp.dest('dist/js'))
+        .pipe(debug({
+            title: 'cp -> '
+        }));
+});
+
 gulp.task('serve', serve('dist'));
-gulp.task('copy', ['bootstrap', 'jquery', 'underscore']);
+gulp.task('copy', ['bootstrap', 'jquery', 'underscore', 'jquery-bar-rating', 'rxjs']);
 
 gulp.task('default', function() {
     console.log('gulp serve');
