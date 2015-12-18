@@ -44,10 +44,18 @@
     </nav>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-4" id="tree_container"></div>
-            <div class="col-md-8" id="links_container">
+            <div class="col-md-4">
+                <div class="tree" id="folders"></div>
+                <div class="tree list-group">
+                    <a href="#" class="list-group-item" id="itemsearch" style="display: none">
+                        <span class="badge">0</span> Search
+                    </a>
+                </div>
+                <!-- TODO: da spostare -->
+                <input type="file" class="form-control" id="ctlfile">
+            </div>
+            <div class="col-md-8">
                 <div class="link-commands">
-                    <span id="info"></span>
                     <a href="#"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add</a>
                 </div>
                 <ul class="list-group" id="links"></ul>
@@ -82,7 +90,6 @@
     <script type="text/javascript" src="js/jquery.barrating.min.js"></script>
     <script type="text/javascript" src="js/rx.lite.min.js"></script>
     <script type="text/javascript">
-    var _root;
     var linkItemTemplate;
 
     $(function load() {
@@ -93,19 +100,53 @@
         // // leggo i dati da /data/tree.json
         // $.getJSON('/data/tree.json')
         //     .then(function(data) {
-        //         _root = data;
-        //         $('<div class="tree" id="tree">')
-        //             .appendTo('#tree_container')
+        //         $('#folders')
         //             .treeview({
-        //                 data: _root
+        //                 data: data
         //             })
         //             .on('nodeSelected', nodeSelected);
-        //         makeLinks($('#links'), _root);
+        //         makeLinks($('#links'), data);
         //     })
         //     .fail(function() {
         //         alert('error retrieving tree data');
         //     });
-        fake();
+        //fake();
+        // prevego il refresh della pagina se digitato enter nella casella di ricerca
+        $('#txtsearch').on('keydown', function(event) {
+            if (event.which == 13) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        });
+        // alla selezione di #itemsearch ribadisco la ricerca
+        $('#itemsearch').on('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            $(this).addClass('active');
+            var term = $('#txtsearch').data('last-term');
+            $('#txtsearch').val(term);
+            performSearch(term);
+        });
+        //
+        $('#ctlfile').on('change', function(event) {
+            var files = event.target.files;
+            for (var ii = 0, ff; ff = files[ii]; ii++) {
+                // considero solo i file di tipo text/html
+                if (!ff.type.match('html')) {
+                    continue;
+                }
+                var reader = new FileReader();
+                reader.onload = (function(file) {
+                    return function(event) {
+                        var context = $.parseHTML(event.target.result);
+                        var root = parseBookmarkFile(context);
+                        createTreeView(root);
+                    };
+                })(ff);
+                // leggo il contenuto del file come stringa UTF-8
+                reader.readAsText(ff);
+            }
+        });
     });
 
     function makeLinks(container, nodes) {
@@ -132,7 +173,7 @@
     }
 
     function nodeSelected(event, data) {
-        $('#info').html('');
+        $('#itemsearch').removeClass('active');
         $('.bookmark').hide().filter('[data-folder-id=' + data.folderId + ']').show();
     }
 
@@ -146,30 +187,32 @@
         // TODO: gestire upload file
     }
 
-    function fake() {
-        // simulo upload di un file bookmarks nel formato NETSCAPE-Bookmark-file-1
-        $.get('/data/bookmarks_16_12_15.html')
-            .then(function(data) {
-                var context = $.parseHTML(data);
-                var root = [createFolder($(context).find('dt:first>h3').html(), 0)];
-                parseDL(root[0], $(context).find('dl').first(), 0);
-                return root;
+    // function fake() {
+    //     // simulo upload di un file bookmarks nel formato NETSCAPE-Bookmark-file-1
+    //     $.get('/data/bookmarks_16_12_15.html')
+    //         .then(function(data) {
+    //             var context = $.parseHTML(data);
+    //             var root = parseBookmarkFile(context);
+    //             createTreeView(root);
+    //         })
+    //         .fail(function() {
+    //             alert('error retrieving tree data');
+    //         });
+    // }
+
+    function createTreeView(root) {
+        $('#folders')
+            .treeview({
+                data: root
             })
-            .then(function(root) {
-                // TODO aggiornare _root e salvare /data/tree.json
-                // in questa simulazione ricarico il controllo
-                _root = root;
-                $('<div class="tree" id="tree">')
-                    .appendTo('#tree_container')
-                    .treeview({
-                        data: _root
-                    })
-                    .on('nodeSelected', nodeSelected);
-                makeLinks($('#links'), _root);
-            })
-            .fail(function() {
-                alert('error retrieving tree data');
-            });
+            .on('nodeSelected', nodeSelected);
+        makeLinks($('#links'), root);
+    }
+
+    function parseBookmarkFile(context) {
+        var root = [createFolder($(context).find('dt:first>h3').html(), 0)];
+        parseDL(root[0], $(context).find('dl').first(), 0);
+        return root;
     }
 
     function parseDL(parent, context, folderId) {
@@ -178,11 +221,12 @@
             if ($self.has('h3').length) { // folder
                 var folder = createFolder($self.find('h3').first().html(), ++folderId);
                 (parent.nodes || (parent.nodes = [])).push(folder);
-                parseDL(folder, $self.children('dl'), folderId);
+                folderId = parseDL(folder, $self.children('dl'), folderId);
             } else { // node
                 parseLink($self, parent);
             }
         });
+        return folderId;
     }
 
     function parseLink($dt, parent) {
@@ -212,39 +256,43 @@
         Rx.Observable.merge(
                 Rx.Observable.fromEvent(searchEl, 'keyup'),
                 Rx.Observable.fromEvent(searchEl, 'blur'))
-            .map(function(e) {
-                return e.target.value.trim();
+            .map(function(event) {
+                return event.target.value.trim();
             })
             .filter(function(text) {
                 return text.length === 0 || text.length >= 2;
             })
             .debounce(500) //se non succede più niente per 500ms prosegue
             .distinctUntilChanged() //solo quando cambia
-            .subscribe(
-                function(term) {
-                    // in ogni caso deleleziono la cartella
-                    _.each($('#tree').treeview(true).getSelected(),
-                        function(node) {
-                            $('#tree').treeview('unselectNode', node);
-                        });
-                    if (_.isEmpty(term)) {
-                        // TODO: selezionare l'ultimo nodo selezionato
-                        $('#info').html('');
-                        $('.bookmark').hide();
-                    } else {
-                        var re = new RegExp(term, 'i');
-                        $('.bookmark')
-                            .hide()
-                            .filter(function(index, el) {
-                                // TODO: cercare anche in altre proprietà
-                                return re.test($(el).data('source').text);
-                            })
-                            .do(function() {
-                                $('#info').html('Found ' + this.length);
-                            })
-                            .show();
-                    }
-                });
+            .subscribe(performSearch);
+    }
+
+    function performSearch(term) {
+        // deleleziono la cartella
+        _.each($('#folders').treeview(true).getSelected(),
+            function(node) {
+                $('#folders').treeview('unselectNode', node);
+            });
+        if (_.isEmpty(term)) {
+            // TODO: selezionare l'ultimo nodo selezionato
+            $('.bookmark').hide();
+        } else {
+            // salvo l'ultimo termine di ricerca non vuoto
+            $('#txtsearch').data('last-term', term);
+            // ricerca su tutti i link
+            var re = new RegExp(term, 'i');
+            $('.bookmark')
+                .hide()
+                .filter(function(index, el) {
+                    // TODO: cercare anche in altre proprietà
+                    return re.test($(el).data('source').text);
+                })
+                .do(function() {
+                    // riporto il numero di link trovati
+                    $('#itemsearch').show().addClass('active').find('.badge').html(this.length);
+                })
+                .show();
+        }
     }
 
     //esegue una funziona all'interno della chain
@@ -253,7 +301,7 @@
             func.apply(this);
         }
         return this;
-    } 
+    };
     </script>
 </body>
 
