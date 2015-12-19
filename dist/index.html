@@ -20,39 +20,28 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-default">
-        <div class="container-fluid">
-            <div class="navbar-header">
-                <a class="navbar-brand" href="#">MBorg</a>
-            </div>
-            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                <ul class="nav navbar-nav">
-                    <li><a href="javascript:upload()">Upload</a></li>
-                </ul>
-                <form class="navbar-form navbar-right" role="search">
-                    <div class="form-group">
-                        <div class="input-group">
-                            <div class="input-group-addon">
-                                <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-                            </div>
-                            <input type="text" class="form-control" placeholder="Search" id="txtsearch">
-                        </div>
-                    </div>
-                </form>
+    <div class="navbar navbar-default">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">MBorg</a>
+            <div class="navbar-fullsize">
+                <div class="input-group">
+                    <span class="input-group-addon"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></span>
+                    <input type="text" class="form-control" id="txtsearch" aria-label="Search" placeholder="Search" disabled>
+                </div>
             </div>
         </div>
-    </nav>
+    </div>
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-4">
+                <!-- TODO: da spostare -->
+                <input type="file" class="form-control" id="ctlfile">
                 <div class="tree" id="folders"></div>
                 <div class="tree list-group">
                     <a href="#" class="list-group-item" id="itemsearch" style="display: none">
                         <span class="badge">0</span> Search
                     </a>
                 </div>
-                <!-- TODO: da spostare -->
-                <input type="file" class="form-control" id="ctlfile">
             </div>
             <div class="col-md-8">
                 <div class="link-commands">
@@ -100,22 +89,18 @@
         // // leggo i dati da /data/tree.json
         // $.getJSON('/data/tree.json')
         //     .then(function(data) {
-        //         $('#folders')
-        //             .treeview({
-        //                 data: data
-        //             })
-        //             .on('nodeSelected', nodeSelected);
-        //         makeLinks($('#links'), data);
+        //          ...
         //     })
         //     .fail(function() {
         //         alert('error retrieving tree data');
         //     });
         //fake();
-        // prevego il refresh della pagina se digitato enter nella casella di ricerca
+        // prevengo il refresh della pagina se digitato enter nella casella di ricerca
         $('#txtsearch').on('keydown', function(event) {
             if (event.which == 13) {
                 event.preventDefault();
                 event.stopPropagation();
+                performSearch($('#txtsearch').val());
             }
         });
         // alla selezione di #itemsearch ribadisco la ricerca
@@ -127,7 +112,7 @@
             $('#txtsearch').val(term);
             performSearch(term);
         });
-        //
+        // gestisco l'upload del file
         $('#ctlfile').on('change', function(event) {
             var files = event.target.files;
             for (var ii = 0, ff; ff = files[ii]; ii++) {
@@ -139,6 +124,7 @@
                 reader.onload = (function(file) {
                     return function(event) {
                         var context = $.parseHTML(event.target.result);
+                        // TODO: controllare il doctype che deve essere NETSCAPE-Bookmark-file-1
                         var root = parseBookmarkFile(context);
                         createTreeView(root);
                     };
@@ -207,6 +193,7 @@
             })
             .on('nodeSelected', nodeSelected);
         makeLinks($('#links'), root);
+        $('#txtsearch').prop('disabled', false);
     }
 
     function parseBookmarkFile(context) {
@@ -273,6 +260,7 @@
             function(node) {
                 $('#folders').treeview('unselectNode', node);
             });
+        // se il termine di ricerca è vuoto nascondo tutto altrimenti visualizzo solo i bookmark che lo soddisfano
         if (_.isEmpty(term)) {
             // TODO: selezionare l'ultimo nodo selezionato
             $('.bookmark').hide();
