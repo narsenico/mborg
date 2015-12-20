@@ -15,14 +15,19 @@ body {
     margin-right: 10px;
 }
 
-.link-options a {
+.bookmark .link-options a {
     color: #CCCCCC;
 }
 
-.link-options a:hover {
+.bookmark .link-options a:hover {
     color: #337AB7;
 }
 
-.link-stars {
+.bookmark .link-stars {
     margin-top: 4px;
+}
+
+.bookmark .editable {
+	border-bottom: dashed 1px #CCCCCC;
+	background-color: #EFEFEF;
 }
