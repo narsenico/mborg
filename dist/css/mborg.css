@@ -147,3 +147,9 @@ input[readonly] {
     background-color: white !important;
     cursor: text !important;
 }
+
+.list-group-item.active,
+.list-group-item.node-folders.node-selected {
+	background-color: #c5aed4!important;
+	border-color: #ae9abc!important;
+}

@@ -60,7 +60,8 @@ gulp.task('rxjs', function() {
 });
 
 gulp.task('toastr', function() {
-    gulp.src(['bower_components/toastr/toastr.min.js'])
+    gulp.src(['bower_components/toastr/toastr.min.js',
+        'bower_components/toastr/toastr.js.map'])
         .pipe(gulp.dest('dist/js'))
         .pipe(debug({
             title: 'cp -> '

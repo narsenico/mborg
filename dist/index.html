@@ -36,20 +36,19 @@
     <div class="container-fluid main-container">
         <div class="row">
             <div class="col-md-4">
-                <!-- TODO: da spostare -->
-                <div class="input-group">
-                    <span class="input-group-btn">
-                    <span class="btn btn-primary btn-file">
-                        Add file <input type="file" id="ctlfile">
-                    </span>
-                    </span>
-                    <input type="text" class="form-control" readonly>
-                </div>
                 <div class="tree" id="folders"></div>
                 <div class="tree list-group">
                     <a href="#" class="list-group-item" id="itemsearch" style="display: none">
                         <span class="badge">0</span> Search
                     </a>
+                </div>
+                <div class="input-group">
+                    <span class="input-group-btn">
+                    <span class="btn btn-primary btn-file">
+                        Import file <input type="file" id="ctlfile">
+                    </span>
+                    </span>
+                    <input type="text" class="form-control" readonly>
                 </div>
             </div>
             <div class="col-md-8">
@@ -143,7 +142,6 @@
             }
         });
         // gestisco creazione nuovo link
-        // TODO: il pulsante deve essere disponibile solo se selezionata una cartella
         $('#btnadd').click(function(event) {
             event.preventDefault();
             event.stopPropagation();
@@ -250,6 +248,7 @@
 
     function nodeSelected(event, data) {
         $('#itemsearch').removeClass('active');
+        $('#btnadd').show();
         $('.bookmark.enabled')
             .hide()
             .filter('.enabled[data-folder-id=' + data.folderId + ']')
@@ -411,6 +410,8 @@
             function(node) {
                 $('#folders').treeview('unselectNode', node);
             });
+        // nascondo il pulsante add
+        $('#btnadd').hide();
         // se il termine di ricerca è vuoto nascondo tutto altrimenti visualizzo solo i bookmark che lo soddisfano
         if (_.isEmpty(term)) {
             // TODO: selezionare l'ultimo nodo selezionato
@@ -471,7 +472,7 @@
                 delete map[key];
                 return value;
             }
-        }
+        };
     })();
     </script>
 </body>
