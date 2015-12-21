@@ -1,5 +1,29 @@
 body {
     font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    background-color: #F0F8FF;
+}
+
+.mborg .navbar {
+    border-radius: 0px;
+}
+
+.mborg .navbar .navbar-brand {
+    color: #EFEFEF;
+    font-weight: bold;
+}
+
+.mborg .navbar,
+.mborg .navbar .input-group-addon,
+.mborg .navbar .form-control {    
+    background-color: #00BCD4;
+}
+    
+.mborg .navbar .input-group-addon,
+.mborg .navbar .form-control {
+    border: none;
+    border-bottom: solid 1px #efefef;
+    border-radius: 0px;
+    color: #EFEFEF;
 }
 
 .navbar-fullsize {
@@ -9,10 +33,48 @@ body {
     line-height: 20px;
 }
 
+.mborg .btn-primary,
+.mborg .dropdown-toggle.btn-primary {
+    background-color: #00BCD4;
+}
+
+.mborg .btn-primary:hover, 
+.mborg .dropdown-toggle.btn-primary:hover {
+    background-color: #079FB3;
+}
+
+.mborg .btn-primary:active, 
+.mborg .dropdown-toggle.btn-primary:active {
+    color: #fff;
+    background-color: #204d74;
+    border-color: #122b40;
+}
+
+.main-container {
+    margin-bottom: 100px;
+}
+
+.btn.fixed {
+    position: fixed;
+}
+
+.btn.fixed.bottom {
+    bottom: 10px;
+}
+
+.btn.fixed.right {
+    right: 10px;
+}
+
 .bookmark img {
     width: 16px;
     height: 16px;
     margin-right: 10px;
+}
+
+.bookmark .link-title {
+    font-weight: bold;
+    color: #607D8B;
 }
 
 .bookmark .link-options a {
@@ -27,7 +89,61 @@ body {
     margin-top: 4px;
 }
 
-.bookmark .editable {
-	border-bottom: dashed 1px #CCCCCC;
-	background-color: #EFEFEF;
+.bookmark.editable [data-editable] {
+    border-bottom: dashed 1px #CCCCCC;
+    background-color: #EFEFEF;
+}
+
+.bookmark.editable .link-options .link-option-edit {
+    display: none;
+}
+
+.bookmark.editable .link-options .link-option-remove {
+    display: none;
+}
+
+.bookmark .link-options .link-option-edit-ok {
+    color: #8BC34A;
+}
+
+.bookmark:not(.editable) .link-options .link-option-edit-ok {
+    display: none;
+}
+
+.bookmark .link-options .link-option-edit-cancel {
+    color: #F44336;
+}
+
+.bookmark:not(.editable) .link-options .link-option-edit-cancel {
+    display: none;
+}
+
+.bookmark.removed {
+    display: none!important;
+}
+
+.btn-file {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    outline: none;
+    background: white;
+    cursor: inherit;
+    display: block;
+}
+
+input[readonly] {
+    background-color: white !important;
+    cursor: text !important;
 }

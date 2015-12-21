@@ -59,8 +59,21 @@ gulp.task('rxjs', function() {
         }));
 });
 
+gulp.task('toastr', function() {
+    gulp.src(['bower_components/toastr/toastr.min.js'])
+        .pipe(gulp.dest('dist/js'))
+        .pipe(debug({
+            title: 'cp -> '
+        }));
+    gulp.src(['bower_components/toastr/toastr.min.css'])
+        .pipe(gulp.dest('dist/css'))
+        .pipe(debug({
+            title: 'cp -> '
+        }));        
+});
+
 gulp.task('serve', serve('dist'));
-gulp.task('copy', ['bootstrap', 'jquery', 'underscore', 'jquery-bar-rating', 'rxjs']);
+gulp.task('copy', ['bootstrap', 'jquery', 'underscore', 'jquery-bar-rating', 'rxjs', 'toastr']);
 
 gulp.task('default', function() {
     console.log('gulp serve');

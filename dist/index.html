@@ -11,6 +11,8 @@
     <link href="css/bootstrap-treeview.min.css" rel="stylesheet" type="text/css">
     <link href="css/mborg.css" rel="stylesheet" type="text/css">
     <link href="css/bootstrap-stars.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" type="text/css" href="css/toastr.min.css">
+    <link rel="stylesheet" type="text/css" href="css/Gubja.css">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -19,8 +21,8 @@
     <![endif]-->
 </head>
 
-<body>
-    <div class="navbar navbar-default">
+<body class="mborg">
+    <div class="navbar">
         <div class="navbar-header">
             <a class="navbar-brand" href="#">MBorg</a>
             <div class="navbar-fullsize">
@@ -31,11 +33,18 @@
             </div>
         </div>
     </div>
-    <div class="container-fluid">
+    <div class="container-fluid main-container">
         <div class="row">
             <div class="col-md-4">
                 <!-- TODO: da spostare -->
-                <input type="file" class="form-control" id="ctlfile">
+                <div class="input-group">
+                    <span class="input-group-btn">
+                    <span class="btn btn-primary btn-file">
+                        Add file <input type="file" id="ctlfile">
+                    </span>
+                    </span>
+                    <input type="text" class="form-control" readonly>
+                </div>
                 <div class="tree" id="folders"></div>
                 <div class="tree list-group">
                     <a href="#" class="list-group-item" id="itemsearch" style="display: none">
@@ -44,21 +53,21 @@
                 </div>
             </div>
             <div class="col-md-8">
-                <div class="link-commands">
-                    <a href="#"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add</a>
-                </div>
                 <ul class="list-group" id="links"></ul>
             </div>
         </div>
+        <button id="btnadd" type="button" class="btn btn-circle ripple-effect btn-primary fixed bottom right" aria-label="add new link" title="add new link" style="display: none"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
     </div>
     <!-- template -->
     <script id="link-item-template" type="text/x-handlebars-template">
-        <li class="list-group-item bookmark" data-folder-id="{{folderId}}" style="display: none">
-            <div><img width="16" src="{{icon}}"><span data-editable="text">{{text}}</span></div>
-            <a href="{{href}}"><span data-editable="href">{{href}}</span></a>
+        <li class="list-group-item bookmark {{status}}" data-folder-id="{{folderId}}" style="display: none">
+            <div><img width="16" src="{{icon}}"><span class="link-title" data-editable="text">{{text}}</span></div>
+            <a href="{{href}}" data-editable="href">{{href}}</a>
             <div class="link-options pull-right">
-                <a href="#" class="link-option-edit"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>
-                <a href="#" class="link-option-remove"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a>
+                <a href="#" class="link-option-edit" aria-label="edit bookmark" title="edit bookmark"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>
+                <a href="#" class="link-option-edit-ok" aria-label="confirm changes" title="confirm changes"><span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span></a>
+                <a href="#" class="link-option-edit-cancel" aria-label="cancel changes" title="cancel changes"><span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span></a>
+                <a href="#" class="link-option-remove" aria-label="remove bookmark" title="remove bookmark"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a>
             </div>
             <div class="link-stars br-theme-bootstrap-stars" data-rating="{{rating}}">
                 <select>
@@ -79,10 +88,14 @@
     <script type="text/javascript" src="js/handlebars.min.js"></script>
     <script type="text/javascript" src="js/jquery.barrating.min.js"></script>
     <script type="text/javascript" src="js/rx.lite.min.js"></script>
+    <script type="text/javascript" src="js/toastr.min.js"></script>
+    <script type="text/javascript" src="js/Gubja.js"></script>
     <script type="text/javascript">
+    //
     var linkItemTemplate;
-
     $(function load() {
+        // opzioni per i toast
+        toastr.options.positionClass = 'toast-top-right';
         // preparo i template
         linkItemTemplate = Handlebars.compile($('#link-item-template').html());
         //
@@ -115,26 +128,39 @@
         });
         // gestisco l'upload del file
         $('#ctlfile').on('change', function(event) {
-            var files = event.target.files;
-            for (var ii = 0, ff; ff = files[ii]; ii++) {
+            var ff = event.target.files[0];
+            if (ff) {
                 // considero solo i file di tipo text/html
                 if (!ff.type.match('html')) {
-                    continue;
+                    toastr.error('<b>' + ff.name + '</b> is not a valid <a href="https://msdn.microsoft.com/en-us/library/aa753582(v=vs.85).aspx">NETSCAPE-Bookmark-file-1</a> file.');
+                } else {
+                    $(this).parents('.input-group').find(':text').val(ff.name);
+                    var reader = new FileReader();
+                    reader.onload = $.proxy(loadFile, this, ff);
+                    // leggo il contenuto del file come stringa UTF-8
+                    reader.readAsText(ff);
                 }
-                var reader = new FileReader();
-                reader.onload = (function(file) {
-                    return function(event) {
-                        var context = $.parseHTML(event.target.result);
-                        // TODO: controllare il doctype che deve essere NETSCAPE-Bookmark-file-1
-                        var root = parseBookmarkFile(context);
-                        createTreeView(root);
-                    };
-                })(ff);
-                // leggo il contenuto del file come stringa UTF-8
-                reader.readAsText(ff);
             }
         });
-    });
+        // gestisco creazione nuovo link
+        // TODO: il pulsante deve essere disponibile solo se selezionata una cartella
+        $('#btnadd').click(function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            prepareNewLink();
+        });
+    }); // end load
+
+    function loadFile(file, event) {
+        if (/^\<\!DOCTYPE NETSCAPE\-Bookmark\-file\-1\>/.test(event.target.result)) {
+            var context = $.parseHTML(event.target.result);
+            var root = parseBookmarkFile(context);
+            createTreeView(root);
+            toastr.success('Import complete');
+        } else {
+            toastr.error('<b>' + file.name + '</b> is not a valid <a href="https://msdn.microsoft.com/en-us/library/aa753582(v=vs.85).aspx">NETSCAPE-Bookmark-file-1</a> file.');
+        }
+    }
 
     function createTreeView(root) {
         $('#folders')
@@ -144,6 +170,7 @@
             .on('nodeSelected', nodeSelected);
         makeLinks($('#links'), root);
         $('#txtsearch').prop('disabled', false);
+        $('#btnadd').show();
     }
 
     function makeLinks(container, nodes) {
@@ -160,7 +187,7 @@
     }
 
     function createLinkDom(container, link) {
-        $(linkItemTemplate(link))
+        return $(linkItemTemplate(link))
             .data('source', link)
             .find('.link-stars select') // gesisco rating
             .barrating({
@@ -175,19 +202,46 @@
                 beginEditMode(link, $(this).closest('.bookmark'));
             })
             .end() // ritorno a .bookmark
+            .find('.link-option-edit-ok') // gestisco pulsante fine edit
+            .click(function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                endEditMode(link, $(this).closest('.bookmark'));
+            })
+            .end() // ritorno a .bookmark     
+            .find('.link-option-edit-cancel') // gestisco pulsante annulla edit
+            .click(function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                endEditMode(link, $(this).closest('.bookmark'), true);
+            })
+            .end() // ritorno a .bookmark                     
+            .find('.link-option-remove') // gestisco pulsante remove
+            .click(function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                removeLink($(this).closest('.bookmark'));
+            })
+            .end() // ritorno a .bookmark
             .find('[data-editable]') // gestisco tutti i campi editabili
             .on('keydown', function(event) {
                 if (event.which == 13) { // enter (conferma)
-                    endEditMode(link, $(this).closest('.bookmark'), false);
+                    endEditMode(link, $(this).closest('.bookmark'));
                 } else if (event.which == 27) { // esc (annulla)
                     endEditMode(link, $(this).closest('.bookmark'), true);
-                } else if (event.which == 9) {
-                    // TODO: non funziona -> $(this).closest('.bookmark').find('[data-editable]').gotoNext().focus();
+                    // } else if (event.which == 9) { // tab
+                    //     // TODO: non funziona -> $(this).closest('.bookmark').find('[data-editable]').gotoNext().focus();
                 } else {
-                    console.log(event.which);
-                    // TODO: prevenire ritorno a capo, quote, e altri caratteri che possano creare problemi
-                    // TODO: tab dovrebbe scorrere tra i campi editabili
                     return true;
+                }
+            })
+            .end() // ritorno a .bookmark
+            .find('[data-editable="href"]')
+            .click(function(event) {
+                // se in edit prevengo la selezione del link
+                if ($(this).closest('.bookmark').is('.editable')) {
+                    event.preventDefault();
+                    event.stopPropagation();
                 }
             })
             .end() // ritorno a .bookmark
@@ -196,7 +250,10 @@
 
     function nodeSelected(event, data) {
         $('#itemsearch').removeClass('active');
-        $('.bookmark').hide().filter('[data-folder-id=' + data.folderId + ']').show();
+        $('.bookmark.enabled')
+            .hide()
+            .filter('.enabled[data-folder-id=' + data.folderId + ']')
+            .show();
     }
 
     function ratingChanged(value, text, event) {
@@ -205,29 +262,75 @@
         //  per capire a quale link si fa riferimento accedere al padre di event.target
     }
 
-    function beginEditMode(link, element) {
-        $(element).find('[data-editable]')
+    function beginEditMode(link, $bookmark) {
+        $bookmark
             .addClass('editable')
+            .find('[data-editable]')
             .attr('contenteditable', true)
             .first().focus(); // focus al primo elemento editabile
     }
 
-    function endEditMode(link, element, cancel) {
-        // TODO: eseguire dei controlli formali sui dati modificati (es: text o href non possono essere vuoti)
-        if (cancel) {
-            $(element)
-                .find('[data-editable=text]').html(link.text).end()
-                .find('[data-editable=href]').html(link.href);
+    function endEditMode(link, $bookmark, cancel) {
+        // se annullo l'edit di un link nuovo lo elimino direttamente
+        if (cancel && $bookmark.is('.new')) {
+            deleteLink($bookmark);
         } else {
-            $(element)
-                .find('[data-editable=text]').copyHtmlTo(link, 'text').end()
-                .find('[data-editable=href]').copyHtmlTo(link, 'href');
+            if (cancel) {
+                $bookmark
+                    .find('[data-editable=text]').html(link.text).end()
+                    .find('[data-editable=href]').html(link.href);
+            } else {
+                // TODO: eseguire dei controlli formali sui dati modificati (es: text o href non possono essere vuoti)                
+                $bookmark
+                    .removeClass('new')
+                    .find('[data-editable=text]').copyHtmlTo(link, 'text').end()
+                    .find('[data-editable=href]').copyHtmlTo(link, 'href').attr('href', link.href);
+            }
+            // esco dalla modalità di edit
+            $bookmark
+                .removeClass('editable')
+                .find('[data-editable]')
+                .attr('contenteditable', 'inherit')
+                .blur(); // tolgo il focus
         }
-        // esco dalla modalità di edit
-        $(element).find('[data-editable]')
-            .removeClass('editable')
-            .attr('contenteditable', 'inherit')
-            .blur(); // tolgo il focus
+    }
+
+    function removeLink($bookmark) {
+        // la rimozione è solo logica, i link rimossi non verranno mostrati
+        // la rimozione fisica sarà effettuata solo durante il salvataggio dei dati sul server
+        var link = $bookmark.data('source');
+        var node = getNodeByFolderId(link.folderId);
+        if (node) {
+            $bookmark.removeClass('enabled').addClass('removed');
+            link.removed = true;
+            // il link verrà  ripristinato se viene cliccato il toast prima che scomapia
+            var undoKey = undo.add($bookmark.get(0));
+            toastr.warning('<b>' + link.text + '</b> removed (click to undo)').click(function() {
+                var $undo = $(undo.undo(undoKey));
+                if ($undo.length) {
+                    $undo.data('source').removed = false;
+                    $undo.addClass('enabled').removeClass('removed');
+                }
+            });
+        }
+    }
+
+    function deleteLink($bookmark) {
+        // elimina definitivamente un link, senza possibilità di undo
+        var link = $bookmark.data('source');
+        var node = getNodeByFolderId(link.folderId);
+        if (node) {
+            $bookmark.remove();
+            var pos = _.indexOf(node.links, link);
+            if (pos >= 0) node.links.splice(pos, 1);
+        }
+    }
+
+    function prepareNewLink() {
+        var node = $('#folders').treeview(true).getSelected()[0];
+        var link = createLink('http://', '', 'Bookmark title', node.folderId);
+        (node.links || (node.links = [])).push(link);
+        beginEditMode(link, createLinkDom($('#links'), link).addClass('new').show());
     }
 
     function parseBookmarkFile(context) {
@@ -268,8 +371,22 @@
             "icon": icon,
             "text": text,
             "rating": 1,
-            "folderId": folderId
+            // NB: non ne ho la certezza ma dovrebbe corrispondere a nodeId (-> viene creato solo dopo la creazione del controllo)
+            "folderId": folderId,
+            // NB: stati bookmark -> enabled, removed
+            "status": "enabled"
         };
+    }
+
+    function getNodeByFolderId(folderId) {
+        // in teoria folderId equivale a nodeId e quindi può essere usato per recuperare il nodo
+        var node = $('#folders').treeview(true).getNode(folderId);
+        if (node.nodeId !== node.folderId) {
+            console.log('ERR: node not found for id', folderId);
+            return null;
+        } else {
+            return node;
+        }
     }
 
     function prepareSearch() {
@@ -297,13 +414,13 @@
         // se il termine di ricerca è vuoto nascondo tutto altrimenti visualizzo solo i bookmark che lo soddisfano
         if (_.isEmpty(term)) {
             // TODO: selezionare l'ultimo nodo selezionato
-            $('.bookmark').hide();
+            $('.bookmark.enabled').hide();
         } else {
             // salvo l'ultimo termine di ricerca non vuoto
             $('#txtsearch').data('last-term', term);
             // ricerca su tutti i link
             var re = new RegExp(term, 'i');
-            $('.bookmark')
+            $('.bookmark.enabled')
                 .hide()
                 .filter(function(index, el) {
                     // TODO: cercare anche in altre proprietà
@@ -332,13 +449,30 @@
         return this;
     };
     //
-    $.fn.gotoNext = function() { 
+    $.fn.gotoNext = function() {
         debugger
         var $end = this.end();
         var index = this.index();
         if (index === $end.length - 1) index = 0;
         return $end.eq(this.index() + 1);
     };
+    //
+    var undo = (function() {
+        var map = {};
+        // TODO: rendere key univoco
+        var key = 0;
+        return {
+            add: function() {
+                map[++key] = Array.prototype.slice.apply(arguments);
+                return key;
+            },
+            undo: function(key) {
+                var value = map[key];
+                delete map[key];
+                return value;
+            }
+        }
+    })();
     </script>
 </body>
 
