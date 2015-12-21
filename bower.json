@@ -22,6 +22,7 @@
     "rxjs": "~4.0.7",
     "bootstrap": "~3.3.6",
     "jquery-bar-rating": "~1.1.3",
-    "toastr": "~2.1.2"
+    "toastr": "~2.1.2",
+    "bootstrap-tagsinput": "~0.7.1"
   }
 }

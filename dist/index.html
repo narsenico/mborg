@@ -6,13 +6,14 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>MBorg</title>
-    <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,300,700,600,800" rel="stylesheet" type="text/css">
-    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
-    <link href="css/bootstrap-treeview.min.css" rel="stylesheet" type="text/css">
-    <link href="css/mborg.css" rel="stylesheet" type="text/css">
-    <link href="css/bootstrap-stars.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Open+Sans:400,300,700,600,800">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap-treeview.min.css">
+    <link rel="stylesheet" type="text/css" href="css/mborg.css">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap-stars.css">
     <link rel="stylesheet" type="text/css" href="css/toastr.min.css">
     <link rel="stylesheet" type="text/css" href="css/Gubja.css">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap-tagsinput.css">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -77,6 +78,9 @@
                     <option value="5">5</option>
                 </select>
             </div>
+            <div class="link-tags">
+                <input type="text" value="{{tags}}" data-role="tagsinput">
+            </div>
         </li>
     </script>
     <!-- -->
@@ -89,6 +93,7 @@
     <script type="text/javascript" src="js/rx.lite.min.js"></script>
     <script type="text/javascript" src="js/toastr.min.js"></script>
     <script type="text/javascript" src="js/Gubja.js"></script>
+    <script type="text/javascript" src="js/bootstrap-tagsinput.min.js"></script>
     <script type="text/javascript">
     //
     var linkItemTemplate;
@@ -191,6 +196,17 @@
             .barrating({
                 initialRating: link.rating,
                 onSelect: ratingChanged
+            })
+            .end() // ritorno a .bookmark
+            .find('.link-tags :text')
+            .do(function() {
+                this.tagsinput(); // non ritorna un oggetto jQuery :|
+            })
+            .on('itemAdded', function(event) {
+                link.tags.push(event.item);
+            })
+            .on('itemRemoved', function(event) {
+                link.tags = _.without(link.tags, event.item);
             })
             .end() // ritorno a .bookmark
             .find('.link-option-edit') // gestisco pulsante edit
@@ -354,7 +370,7 @@
 
     function parseLink($dt, parent) {
         var link = $dt.find('a').first();
-        (parent.links || (parent.links = [])).push(createLink(link.attr('href'), link.attr('icon'), link.html(), parent.folderId));
+        (parent.links || (parent.links = [])).push(createLink(link.attr('href'), link.attr('icon'), link.html(), parent));
     }
 
     function createFolder(text, folderId) {
@@ -364,14 +380,16 @@
         };
     }
 
-    function createLink(href, icon, text, folderId) {
+    function createLink(href, icon, text, parent) {
         return {
             "href": href,
-            "icon": icon,
+            // NB: vedi http://jsfiddle.net/LPxrT/
+            "icon": icon || 'data:image/gif;base64,R0lGODlhAQABAPAAAOvk8P///yH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==',
             "text": text,
             "rating": 1,
+            "tags": [ parent.text ], // come primo tag uso il nome della cartella
             // NB: non ne ho la certezza ma dovrebbe corrispondere a nodeId (-> viene creato solo dopo la creazione del controllo)
-            "folderId": folderId,
+            "folderId": parent.folderId,
             // NB: stati bookmark -> enabled, removed
             "status": "enabled"
         };
@@ -425,7 +443,8 @@
                 .hide()
                 .filter(function(index, el) {
                     // TODO: cercare anche in altre proprietà
-                    return re.test($(el).data('source').text);
+                    var link = $(el).data('source');
+                    return re.test([link.text, link.href, link.tags.join()].join(''));
                 })
                 .do(function() {
                     // riporto il numero di link trovati

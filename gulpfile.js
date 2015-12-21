@@ -18,6 +18,16 @@ gulp.task('bootstrap', function() {
         .pipe(debug({
             title: 'cp -> '
         }));
+    gulp.src(['bower_components/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js*'])
+        .pipe(gulp.dest('dist/js'))
+        .pipe(debug({
+            title: 'cp -> '
+        }));
+    gulp.src(['bower_components/bootstrap-tagsinput/dist/bootstrap-tagsinput.css'])
+        .pipe(gulp.dest('dist/css'))
+        .pipe(debug({
+            title: 'cp -> '
+        }));
 });
 
 gulp.task('jquery', function() {

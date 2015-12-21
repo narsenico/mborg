@@ -1,4 +1,4 @@
-body {
+body.mborg {
     font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
     background-color: #F0F8FF;
 }
@@ -50,6 +50,11 @@ body {
     border-color: #122b40;
 }
 
+.mborg .bootstrap-tagsinput {
+    border: none;
+    background-color: inherit;    
+}
+
 .main-container {
     margin-bottom: 100px;
 }
@@ -75,6 +80,10 @@ body {
 .bookmark .link-title {
     font-weight: bold;
     color: #607D8B;
+}
+
+.bookmark:not(:hover) .link-options {
+    display: none;
 }
 
 .bookmark .link-options a {
