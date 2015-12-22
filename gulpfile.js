@@ -23,7 +23,8 @@ gulp.task('bootstrap', function() {
         .pipe(debug({
             title: 'cp -> '
         }));
-    gulp.src(['bower_components/bootstrap-tagsinput/dist/bootstrap-tagsinput.css'])
+    gulp.src(['bower_components/bootstrap-tagsinput/dist/bootstrap-tagsinput.css',
+    	'bower_components/bootstrap-tagsinput/dist/bootstrap-tagsinput-typeahead.css'])
         .pipe(gulp.dest('dist/css'))
         .pipe(debug({
             title: 'cp -> '
@@ -83,8 +84,19 @@ gulp.task('toastr', function() {
         }));        
 });
 
-gulp.task('serve', serve('dist'));
-gulp.task('copy', ['bootstrap', 'jquery', 'underscore', 'jquery-bar-rating', 'rxjs', 'toastr']);
+gulp.task('typeahead.js', function() {
+    gulp.src(['bower_components/typeahead.js/dist/typeahead.bundle.min.js'])
+        .pipe(gulp.dest('dist/js'))
+        .pipe(debug({
+            title: 'cp -> '
+        }));
+});
+
+gulp.task('serve', serve({
+    root: 'dist',
+    port: 3001
+}));
+gulp.task('copy', ['bootstrap', 'jquery', 'underscore', 'jquery-bar-rating', 'rxjs', 'toastr', 'typeahead.js']);
 
 gulp.task('default', function() {
     console.log('gulp serve');

@@ -9,11 +9,12 @@
     <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Open+Sans:400,300,700,600,800">
     <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="css/bootstrap-treeview.min.css">
-    <link rel="stylesheet" type="text/css" href="css/mborg.css">
     <link rel="stylesheet" type="text/css" href="css/bootstrap-stars.css">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap-tagsinput.css">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap-tagsinput-typeahead.css">
     <link rel="stylesheet" type="text/css" href="css/toastr.min.css">
     <link rel="stylesheet" type="text/css" href="css/Gubja.css">
-    <link rel="stylesheet" type="text/css" href="css/bootstrap-tagsinput.css">
+    <link rel="stylesheet" type="text/css" href="css/mborg.css">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -87,13 +88,14 @@
     <script type="text/javascript" src="js/jquery.min.js"></script>
     <script type="text/javascript" src="js/bootstrap.min.js"></script>
     <script type="text/javascript" src="js/bootstrap-treeview.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap-tagsinput.min.js"></script>
     <script type="text/javascript" src="js/underscore-min.js"></script>
     <script type="text/javascript" src="js/handlebars.min.js"></script>
     <script type="text/javascript" src="js/jquery.barrating.min.js"></script>
     <script type="text/javascript" src="js/rx.lite.min.js"></script>
     <script type="text/javascript" src="js/toastr.min.js"></script>
     <script type="text/javascript" src="js/Gubja.js"></script>
-    <script type="text/javascript" src="js/bootstrap-tagsinput.min.js"></script>
+    <script type="text/javascript" src="js/typeahead.bundle.min.js"></script>
     <script type="text/javascript">
     //
     var linkItemTemplate;
@@ -189,6 +191,42 @@
             .each($.proxy(createLinkDom, this, container)); // creo l'elemento
     }
 
+    /** TEST **/
+    // http://twitter.github.io/typeahead.js/examples/
+    var states = ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California',
+        'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii',
+        'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana',
+        'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota',
+        'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire',
+        'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota',
+        'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island',
+        'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont',
+        'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'
+    ];
+
+    var substringMatcher = function(strs) {
+        return function findMatches(q, cb) {
+            var matches, substringRegex;
+
+            // an array that will be populated with substring matches
+            matches = [];
+
+            // regex used to determine if a string contains the substring `q`
+            substrRegex = new RegExp(q, 'i');
+
+            // iterate through the pool of strings and for any string that
+            // contains the substring `q`, add it to the `matches` array
+            $.each(strs, function(i, str) {
+                if (substrRegex.test(str)) {
+                    matches.push(str);
+                }
+            });
+
+            cb(matches);
+        };
+    };
+    /** TEST **/
+
     function createLinkDom(container, link) {
         return $(linkItemTemplate(link))
             .data('source', link)
@@ -200,7 +238,15 @@
             .end() // ritorno a .bookmark
             .find('.link-tags :text')
             .do(function() {
-                this.tagsinput(); // non ritorna un oggetto jQuery :|
+                this.tagsinput({
+                    typeaheadjs: [{
+                        hint: true,
+                        highlight: true,
+                        minLength: 1
+                    }, {
+                        source: substringMatcher(states)
+                    }]
+                }); // non ritorna un oggetto jQuery :|
             })
             .on('itemAdded', function(event) {
                 link.tags.push(event.item);
@@ -387,7 +433,7 @@
             "icon": icon || 'data:image/gif;base64,R0lGODlhAQABAPAAAOvk8P///yH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==',
             "text": text,
             "rating": 1,
-            "tags": [ parent.text ], // come primo tag uso il nome della cartella
+            "tags": [parent.text], // come primo tag uso il nome della cartella
             // NB: non ne ho la certezza ma dovrebbe corrispondere a nodeId (-> viene creato solo dopo la creazione del controllo)
             "folderId": parent.folderId,
             // NB: stati bookmark -> enabled, removed
