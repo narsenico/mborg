@@ -1,6 +1,6 @@
 body {
     font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    background-color: #F0F8FF;
+    background-color: #EEEEEE;
     padding-top: 70px;
 }
 
@@ -51,9 +51,12 @@ body {
 }
 
 .bookmark-group .bookmark {
-    background-color: rgba(255,255,255, 0.84);
+    background-color: rgba(255, 255, 255, 0.84);
     padding: 10px 15px;
-    border: solid 1px #ddd;	
+    border: solid 1px #ddd;
+    margin-bottom: 4px;
+    border-radius: 2px;
+    overflow: visible;
 }
 
 .bookmark-group .bookmark img {
@@ -116,6 +119,10 @@ body {
     display: none!important;
 }
 
+.bookmark-group .bookmark .tag {
+    background-color: #00BCD4;
+}
+
 .btn-file {
     position: relative;
     overflow: hidden;
@@ -146,4 +153,20 @@ input[readonly] {
 .list-group-item.node-folders.node-selected {
     background-color: #c5aed4!important;
     border-color: #ae9abc!important;
+}
+
+.ribbon {
+    position: fixed;
+    top: 0;
+    right: 0;
+    border: 0;
+    z-index: 9999
+}
+
+/* taginputs colore dell'elemento selezionato con le freccette nel dropdown */
+.tt-cursor {
+    color: #ffffff;
+    text-decoration: none;
+    outline: 0;
+    background-color: #428bca;
 }
