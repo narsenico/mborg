@@ -7,13 +7,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>MBorg</title>
     <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Open+Sans:400,300,700,600,800">
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700">
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="css/bootstrap-treeview.min.css">
     <link rel="stylesheet" type="text/css" href="css/bootstrap-stars.css">
     <link rel="stylesheet" type="text/css" href="css/bootstrap-tagsinput.css">
     <link rel="stylesheet" type="text/css" href="css/bootstrap-tagsinput-typeahead.css">
     <link rel="stylesheet" type="text/css" href="css/toastr.min.css">
-    <link rel="stylesheet" type="text/css" href="css/Gubja.css">
+    <link rel="stylesheet" href="css/bootstrap-material-design.css">
+    <link rel="stylesheet" type="text/css" href="css/ripples.min.css">
     <link rel="stylesheet" type="text/css" href="css/mborg.css">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -24,44 +27,80 @@
 </head>
 
 <body class="mborg">
-    <div class="navbar">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="#">MBorg</a>
-            <div class="navbar-fullsize">
-                <div class="input-group">
-                    <span class="input-group-addon"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></span>
-                    <input type="text" class="form-control" id="txtsearch" aria-label="Search" placeholder="Search" disabled>
-                </div>
+    <div class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">MBorg<div class="ripple-container"></div></a>
+            </div>
+            <div class="navbar-collapse collapse navbar-responsive-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="javascript:void(0)">Active</a></li>
+                    <li><a href="javascript:void(0)">Link</a></li>
+                    <li class="dropdown">
+                        <a href="bootstrap-elements.html" data-target="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown
+                          <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="javascript:void(0)">Action</a></li>
+                            <li><a href="javascript:void(0)">Another action</a></li>
+                            <li><a href="javascript:void(0)">Something else here</a></li>
+                            <li class="divider"></li>
+                            <li class="dropdown-header">Dropdown header</li>
+                            <li><a href="javascript:void(0)">Separated link</a></li>
+                            <li><a href="javascript:void(0)">One more separated link</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <form class="navbar-form navbar-left">
+                    <div class="form-group is-empty">
+                        <input type="text" class="form-control col-md-8" placeholder="Search" id="txtsearch">
+                        <span class="material-input"></span></div>
+                </form>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="javascript:void(0)">Link</a></li>
+                    <li class="dropdown">
+                        <a href="bootstrap-elements.html" data-target="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown
+                          <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="javascript:void(0)">Action</a></li>
+                            <li><a href="javascript:void(0)">Another action</a></li>
+                            <li><a href="javascript:void(0)">Something else here</a></li>
+                            <li class="divider"></li>
+                            <li><a href="javascript:void(0)">Separated link</a></li>
+                        </ul>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
     <div class="container-fluid main-container">
-        <div class="row">
-            <div class="col-md-4">
-                <div class="tree" id="folders"></div>
-                <div class="tree list-group">
-                    <a href="#" class="list-group-item" id="itemsearch" style="display: none">
-                        <span class="badge">0</span> Search
-                    </a>
-                </div>
+        <div class="jumbotron" id="divimport">
+            <h3>NETSCAPE-Bookmark-file-1</h3>
+            <p>TODO spiegare cos'è un file bookmark html</p>
+            <div class="form-group is-empty is-fileinput">
+                <input type="file" id="ctlfile" multiple="">
                 <div class="input-group">
-                    <span class="input-group-btn">
-                    <span class="btn btn-primary btn-file">
-                        Import file <input type="file" id="ctlfile">
+                    <input type="text" readonly="" class="form-control" placeholder="Import file">
+                    <span class="input-group-btn input-group-sm">
+                        <button type="button" class="btn btn-fab btn-fab-mini"><i class="material-icons">attach_file</i></button>
                     </span>
-                    </span>
-                    <input type="text" class="form-control" readonly>
                 </div>
+                <span class="material-input"></span>
             </div>
-            <div class="col-md-8">
-                <ul class="list-group" id="links"></ul>
-            </div>
+            <p><a class="btn btn-primary btn-lg" href="https://msdn.microsoft.com/en-us/library/aa753582(v=vs.85).aspx">Learn more</a></p>
         </div>
-        <button id="btnadd" type="button" class="btn btn-circle ripple-effect btn-primary fixed bottom right" aria-label="add new link" title="add new link" style="display: none"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
+        <ul class="list-group bookmark-group" id="links"></ul>
+        <button id="btnadd" type="button" class="btn btn-fab btn-raised btn-primary fixed bottom right" aria-label="add new link" title="add new link"><i class="material-icons">add</i></button>
     </div>
+    <!-- github ribbon -->
+    <a href="https://github.com/narsenico/mborg"><img style="position: fixed; top: 0; right: 0; border: 0; z-index: 9999" src="https://camo.githubusercontent.com/52760788cde945287fbb584134c4cbc2bc36f904/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f72   6962626f6e732f666f726b6d655f72696768745f77686974655f6666666666662e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png"></a>
     <!-- template -->
     <script id="link-item-template" type="text/x-handlebars-template">
-        <li class="list-group-item bookmark {{status}}" data-folder-id="{{folderId}}" style="display: none">
+        <li class="list-group-item bookmark {{status}}">
             <div><img width="16" src="{{icon}}"><span class="link-title" data-editable="text">{{text}}</span></div>
             <a href="{{href}}" data-editable="href">{{href}}</a>
             <div class="link-options pull-right">
@@ -94,27 +133,24 @@
     <script type="text/javascript" src="js/jquery.barrating.min.js"></script>
     <script type="text/javascript" src="js/rx.lite.min.js"></script>
     <script type="text/javascript" src="js/toastr.min.js"></script>
-    <script type="text/javascript" src="js/Gubja.js"></script>
     <script type="text/javascript" src="js/typeahead.bundle.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/0.5.6/js/material.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/0.5.6/js/ripples.js"></script>
     <script type="text/javascript">
-    //
+    // template compilato per i link
     var linkItemTemplate;
+    // tutti i tag usati
+    var allTags = [];
+    //
     $(function load() {
+        // attivo gli effetti material
+        $.material.init();
         // opzioni per i toast
-        toastr.options.positionClass = 'toast-top-right';
+        toastr.options.positionClass = 'toast-bottom-left';
         // preparo i template
         linkItemTemplate = Handlebars.compile($('#link-item-template').html());
         //
         prepareSearch();
-        // // leggo i dati da /data/tree.json
-        // $.getJSON('/data/tree.json')
-        //     .then(function(data) {
-        //          ...
-        //     })
-        //     .fail(function() {
-        //         alert('error retrieving tree data');
-        //     });
-        //fake();
         // prevengo il refresh della pagina se digitato enter nella casella di ricerca
         $('#txtsearch').on('keydown', function(event) {
             if (event.which == 13) {
@@ -154,80 +190,36 @@
             event.stopPropagation();
             prepareNewLink();
         });
+        // TODO: leggere dati dal server
+        // TODO: nascondere #divimport se viene letto qualcosa
     }); // end load
 
     function loadFile(file, event) {
         if (/^\<\!DOCTYPE NETSCAPE\-Bookmark\-file\-1\>/.test(event.target.result)) {
             var context = $.parseHTML(event.target.result);
-            var root = parseBookmarkFile(context);
-            createTreeView(root);
-            toastr.success('Import complete');
+            //creo i link
+            $('#divimport').hide();
+            _.delay(function() {
+                makeLinks($('#links'), parseBookmarkFile(context));
+                toastr.success('Import complete');
+            }, 10);
         } else {
             toastr.error('<b>' + file.name + '</b> is not a valid <a href="https://msdn.microsoft.com/en-us/library/aa753582(v=vs.85).aspx">NETSCAPE-Bookmark-file-1</a> file.');
         }
     }
 
-    function createTreeView(root) {
-        $('#folders')
-            .treeview({
-                data: root
-            })
-            .on('nodeSelected', nodeSelected);
-        makeLinks($('#links'), root);
-        $('#txtsearch').prop('disabled', false);
-        $('#btnadd').show();
+    function makeLinks(container, links) {
+        // var tt = new Date().getTime();
+        container.append(
+                _.chain(links)
+                .sortBy('text') //  ordino per il testo
+                .map($.proxy(createLinkDom, this)) // creo l'elemento
+                .value())
+            .find('.bookmark').tap(fixLinkDom);
+        // console.log('******', (new Date().getTime() - tt));
     }
 
-    function makeLinks(container, nodes) {
-        _.chain((function extractLinks(nodes) {
-                return _.flatten(
-                    _.map(nodes, function(node) {
-                        return (node.links || [])
-                            .concat(extractLinks(node.nodes));
-                    })
-                );
-            })(nodes)) // estraggo tutti i link di tutte i nodi/cartella
-            .sortBy('text') //  ordino per il testo
-            .each($.proxy(createLinkDom, this, container)); // creo l'elemento
-    }
-
-    /** TEST **/
-    // http://twitter.github.io/typeahead.js/examples/
-    var states = ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California',
-        'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii',
-        'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana',
-        'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota',
-        'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire',
-        'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota',
-        'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island',
-        'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont',
-        'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'
-    ];
-
-    var substringMatcher = function(strs) {
-        return function findMatches(q, cb) {
-            var matches, substringRegex;
-
-            // an array that will be populated with substring matches
-            matches = [];
-
-            // regex used to determine if a string contains the substring `q`
-            substrRegex = new RegExp(q, 'i');
-
-            // iterate through the pool of strings and for any string that
-            // contains the substring `q`, add it to the `matches` array
-            $.each(strs, function(i, str) {
-                if (substrRegex.test(str)) {
-                    matches.push(str);
-                }
-            });
-
-            cb(matches);
-        };
-    };
-    /** TEST **/
-
-    function createLinkDom(container, link) {
+    function createLinkDom(link) {
         return $(linkItemTemplate(link))
             .data('source', link)
             .find('.link-stars select') // gesisco rating
@@ -235,23 +227,24 @@
                 initialRating: link.rating,
                 onSelect: ratingChanged
             })
-            .end() // ritorno a .bookmark
+            .end() // ritorno a .bookmark            
             .find('.link-tags :text')
-            .do(function() {
-                this.tagsinput({
-                    typeaheadjs: [{
-                        hint: true,
-                        highlight: true,
-                        minLength: 1
-                    }, {
-                        source: substringMatcher(states)
-                    }]
-                }); // non ritorna un oggetto jQuery :|
-            })
-            .on('itemAdded', function(event) {
+            // .tap(function() {
+            //     this.tagsinput({
+            //         typeaheadjs: [{
+            //             hint: true,
+            //             highlight: true,
+            //             minLength: 1
+            //         }, {
+            //             source: tagMatcher()
+            //         }]
+            //     }); // non ritorna un oggetto jQuery :|
+            // })
+            .on('itemAdded', function(event) { // evento di tagsinput
+                allTags = _.union(allTags, event.item);
                 link.tags.push(event.item);
             })
-            .on('itemRemoved', function(event) {
+            .on('itemRemoved', function(event) { // evento di tagsinput
                 link.tags = _.without(link.tags, event.item);
             })
             .end() // ritorno a .bookmark
@@ -268,14 +261,14 @@
                 event.stopPropagation();
                 endEditMode(link, $(this).closest('.bookmark'));
             })
-            .end() // ritorno a .bookmark     
+            .end() // ritorno a .bookmark
             .find('.link-option-edit-cancel') // gestisco pulsante annulla edit
             .click(function(event) {
                 event.preventDefault();
                 event.stopPropagation();
                 endEditMode(link, $(this).closest('.bookmark'), true);
             })
-            .end() // ritorno a .bookmark                     
+            .end() // ritorno a .bookmark             
             .find('.link-option-remove') // gestisco pulsante remove
             .click(function(event) {
                 event.preventDefault();
@@ -305,16 +298,36 @@
                 }
             })
             .end() // ritorno a .bookmark
-            .appendTo(container);
+        ;
     }
 
-    function nodeSelected(event, data) {
-        $('#itemsearch').removeClass('active');
-        $('#btnadd').show();
-        $('.bookmark.enabled')
-            .hide()
-            .filter('.enabled[data-folder-id=' + data.folderId + ']')
-            .show();
+    function fixLinkDom() {
+        // var tt = new Date().getTime();
+        var elements = $('.link-tags :text', this);
+        var max = elements.length - 1;
+        var index = 0;
+        // TODO: non mi piace molto usare setInterval ma non ho trovato una soluzione migliore
+        // un loop con n chiamate di setTimeout non ha funzionato (la pagina si aggiorna solo al termine del loop !?!?!?)
+        var hnd = setInterval(function() {
+            var idx = index;
+            if (idx > max) {
+                clearInterval(hnd);
+                // console.log('--fine--', (tt - new Date().getTime()));
+            } else {
+                index++;
+                elements.eq(idx)
+                    .tagsinput({
+                        typeaheadjs: [{
+                            hint: true,
+                            highlight: true,
+                            minLength: 1
+                        }, {
+                            source: tagMatcher()
+                        }]
+                    });
+            }
+        });
+        return this;
     }
 
     function ratingChanged(value, text, event) {
@@ -360,96 +373,63 @@
         // la rimozione è solo logica, i link rimossi non verranno mostrati
         // la rimozione fisica sarà effettuata solo durante il salvataggio dei dati sul server
         var link = $bookmark.data('source');
-        var node = getNodeByFolderId(link.folderId);
-        if (node) {
-            $bookmark.removeClass('enabled').addClass('removed');
-            link.removed = true;
-            // il link verrà  ripristinato se viene cliccato il toast prima che scomapia
-            var undoKey = undo.add($bookmark.get(0));
-            toastr.warning('<b>' + link.text + '</b> removed (click to undo)').click(function() {
-                var $undo = $(undo.undo(undoKey));
-                if ($undo.length) {
-                    $undo.data('source').removed = false;
-                    $undo.addClass('enabled').removeClass('removed');
-                }
-            });
-        }
+        $bookmark.removeClass('enabled').addClass('removed');
+        link.removed = true;
+        // il link verrà  ripristinato se viene cliccato il toast prima che scomapia
+        var undoKey = undo.add($bookmark.get(0));
+        toastr.warning('<b>' + link.text + '</b> removed (click to undo)').click(function() {
+            var $undo = $(undo.undo(undoKey));
+            if ($undo.length) {
+                $undo.data('source').removed = false;
+                $undo.addClass('enabled').removeClass('removed');
+            }
+        });
     }
 
     function deleteLink($bookmark) {
         // elimina definitivamente un link, senza possibilità di undo
         var link = $bookmark.data('source');
-        var node = getNodeByFolderId(link.folderId);
-        if (node) {
-            $bookmark.remove();
-            var pos = _.indexOf(node.links, link);
-            if (pos >= 0) node.links.splice(pos, 1);
-        }
+        $bookmark.remove();
     }
 
     function prepareNewLink() {
-        var node = $('#folders').treeview(true).getSelected()[0];
-        var link = createLink('http://', '', 'Bookmark title', node.folderId);
-        (node.links || (node.links = [])).push(link);
-        beginEditMode(link, createLinkDom($('#links'), link).addClass('new').show());
+        var link = createLink('http://', '', 'Bookmark title');
+        beginEditMode(link,
+            fixLinkDom.bind(createLinkDom(link).addClass('new'))()
+            .appendTo($('#links')).show());
     }
 
     function parseBookmarkFile(context) {
-        var root = [createFolder($(context).find('dt:first>h3').html(), 0)];
-        parseDL(root[0], $(context).find('dl').first(), 0);
-        return root;
+        var links = [];
+        parseDL($(context).find('dl').first(), $(context).find('dt:first>h3').html(), links);
+        return links;
     }
 
-    function parseDL(parent, context, folderId) {
+    function parseDL(context, path, links) {
         context.children('dt').each(function() {
             var $self = $(this);
             if ($self.has('h3').length) { // folder
-                var folder = createFolder($self.find('h3').first().html(), ++folderId);
-                (parent.nodes || (parent.nodes = [])).push(folder);
-                folderId = parseDL(folder, $self.children('dl'), folderId);
+                parseDL($self.children('dl'), path + ',' + $self.find('h3').first().html(), links);
             } else { // node
-                parseLink($self, parent);
+                var link = $self.find('a').first();
+                var tags = path.split(',');
+                allTags = _.union(allTags, tags);
+                links.push(createLink(link.attr('href'), link.attr('icon'), link.html(), tags));
             }
         });
-        return folderId;
     }
 
-    function parseLink($dt, parent) {
-        var link = $dt.find('a').first();
-        (parent.links || (parent.links = [])).push(createLink(link.attr('href'), link.attr('icon'), link.html(), parent));
-    }
-
-    function createFolder(text, folderId) {
-        return {
-            "text": text,
-            "folderId": folderId
-        };
-    }
-
-    function createLink(href, icon, text, parent) {
+    function createLink(href, icon, text, tags) {
         return {
             "href": href,
             // NB: vedi http://jsfiddle.net/LPxrT/
             "icon": icon || 'data:image/gif;base64,R0lGODlhAQABAPAAAOvk8P///yH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==',
             "text": text,
             "rating": 1,
-            "tags": [parent.text], // come primo tag uso il nome della cartella
-            // NB: non ne ho la certezza ma dovrebbe corrispondere a nodeId (-> viene creato solo dopo la creazione del controllo)
-            "folderId": parent.folderId,
             // NB: stati bookmark -> enabled, removed
-            "status": "enabled"
+            "status": "enabled",
+            "tags": tags || []
         };
-    }
-
-    function getNodeByFolderId(folderId) {
-        // in teoria folderId equivale a nodeId e quindi può essere usato per recuperare il nodo
-        var node = $('#folders').treeview(true).getNode(folderId);
-        if (node.nodeId !== node.folderId) {
-            console.log('ERR: node not found for id', folderId);
-            return null;
-        } else {
-            return node;
-        }
     }
 
     function prepareSearch() {
@@ -469,17 +449,9 @@
     }
 
     function performSearch(term) {
-        // deleleziono la cartella
-        _.each($('#folders').treeview(true).getSelected(),
-            function(node) {
-                $('#folders').treeview('unselectNode', node);
-            });
-        // nascondo il pulsante add
-        $('#btnadd').hide();
-        // se il termine di ricerca è vuoto nascondo tutto altrimenti visualizzo solo i bookmark che lo soddisfano
+        // se il termine di ricerca è vuoto mostro tutto altrimenti solo i bookmark che lo soddisfano
         if (_.isEmpty(term)) {
-            // TODO: selezionare l'ultimo nodo selezionato
-            $('.bookmark.enabled').hide();
+            $('.bookmark.enabled').show();
         } else {
             // salvo l'ultimo termine di ricerca non vuoto
             $('#txtsearch').data('last-term', term);
@@ -492,7 +464,7 @@
                     var link = $(el).data('source');
                     return re.test([link.text, link.href, link.tags.join()].join(''));
                 })
-                .do(function() {
+                .tap(function() {
                     // riporto il numero di link trovati
                     $('#itemsearch').show().addClass('active').find('.badge').html(this.length);
                 })
@@ -501,8 +473,7 @@
     }
 
     // esegue una funziona all'interno della chain
-    $.fn.do = function(func) {
-        // TODO: do, gestire each
+    $.fn.tap = function(func) {
         if (func) {
             func.apply(this);
         }
@@ -514,7 +485,7 @@
         obj[property] = this.html();
         return this;
     };
-    //
+    // TODO: gotoNext
     $.fn.gotoNext = function() {
         debugger
         var $end = this.end();
@@ -539,7 +510,22 @@
             }
         };
     })();
+
+    var tagMatcher = function() {
+        return function findMatches(query, cb) {
+            var matches, rg;
+            matches = [];
+            rg = new RegExp(query, 'i');
+            _.each(allTags, function(tag) {
+                if (rg.test(tag)) {
+                    matches.push(tag);
+                }
+            });
+            cb(matches);
+        };
+    };
     </script>
+    </div>
 </body>
 
 </html>

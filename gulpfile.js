@@ -29,6 +29,16 @@ gulp.task('bootstrap', function() {
         .pipe(debug({
             title: 'cp -> '
         }));
+    gulp.src(['bower_components/bootstrap-material-design/dist/js/*'])
+        .pipe(gulp.dest('dist/js'))
+        .pipe(debug({
+            title: 'cp -> '
+        }));        
+    gulp.src(['bower_components/bootstrap-material-design/dist/css/*'])
+        .pipe(gulp.dest('dist/css'))
+        .pipe(debug({
+            title: 'cp -> '
+        }));        
 });
 
 gulp.task('jquery', function() {

@@ -1,62 +1,41 @@
-body.mborg {
+body {
     font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
     background-color: #F0F8FF;
+    padding-top: 70px;
 }
 
-.mborg .navbar {
-    border-radius: 0px;
-}
-
-.mborg .navbar .navbar-brand {
+.navbar .navbar-brand {
     color: #EFEFEF;
     font-weight: bold;
 }
 
-.mborg .navbar,
-.mborg .navbar .input-group-addon,
-.mborg .navbar .form-control {    
-    background-color: #00BCD4;
-}
-    
-.mborg .navbar .input-group-addon,
-.mborg .navbar .form-control {
-    border: none;
-    border-bottom: solid 1px #efefef;
-    border-radius: 0px;
-    color: #EFEFEF;
-}
-
-.navbar-fullsize {
-    height: 50px;
-    padding: 9px 9px 0px 0px;
-    font-size: 18px;
-    line-height: 20px;
-}
-
-.mborg .btn-primary,
-.mborg .dropdown-toggle.btn-primary {
+.navbar.navbar-default {
     background-color: #00BCD4;
 }
 
-.mborg .btn-primary:hover, 
-.mborg .dropdown-toggle.btn-primary:hover {
+.btn.btn-fab.btn-primary,
+.dropdown-toggle.btn-primary {
+    background-color: #00BCD4;
+}
+
+.btn.btn-fab.btn-primary:hover {
     background-color: #079FB3;
 }
 
-.mborg .btn-primary:active, 
-.mborg .dropdown-toggle.btn-primary:active {
+.btn.btn-fab.btn-primary:active {
     color: #fff;
     background-color: #204d74;
     border-color: #122b40;
 }
 
-.mborg .bootstrap-tagsinput {
+.bootstrap-tagsinput {
     border: none;
-    background-color: inherit;    
+    background-color: inherit;
 }
 
 .main-container {
     margin-bottom: 100px;
+    max-width: 768px;
 }
 
 .btn.fixed {
@@ -64,70 +43,76 @@ body.mborg {
 }
 
 .btn.fixed.bottom {
-    bottom: 10px;
+    bottom: 15px;
 }
 
 .btn.fixed.right {
-    right: 10px;
+    right: 15px;
 }
 
-.bookmark img {
+.bookmark-group .bookmark {
+    background-color: rgba(255,255,255, 0.84);
+    padding: 10px 15px;
+    border: solid 1px #ddd;	
+}
+
+.bookmark-group .bookmark img {
     width: 16px;
     height: 16px;
     margin-right: 10px;
 }
 
-.bookmark .link-title {
+.bookmark-group .bookmark .link-title {
     font-weight: bold;
     color: #607D8B;
 }
 
-.bookmark:not(:hover) .link-options {
+.bookmark-group .bookmark:not(:hover) .link-options {
     display: none;
 }
 
-.bookmark .link-options a {
+.bookmark-group .bookmark .link-options a {
     color: #CCCCCC;
 }
 
-.bookmark .link-options a:hover {
+.bookmark-group .bookmark .link-options a:hover {
     color: #337AB7;
 }
 
-.bookmark .link-stars {
+.bookmark-group .bookmark .link-stars {
     margin-top: 4px;
 }
 
-.bookmark.editable [data-editable] {
+.bookmark-group .bookmark.editable [data-editable] {
     border-bottom: dashed 1px #CCCCCC;
     background-color: #EFEFEF;
 }
 
-.bookmark.editable .link-options .link-option-edit {
+.bookmark-group .bookmark.editable .link-options .link-option-edit {
     display: none;
 }
 
-.bookmark.editable .link-options .link-option-remove {
+.bookmark-group .bookmark.editable .link-options .link-option-remove {
     display: none;
 }
 
-.bookmark .link-options .link-option-edit-ok {
+.bookmark-group .bookmark .link-options .link-option-edit-ok {
     color: #8BC34A;
 }
 
-.bookmark:not(.editable) .link-options .link-option-edit-ok {
+.bookmark-group .bookmark:not(.editable) .link-options .link-option-edit-ok {
     display: none;
 }
 
-.bookmark .link-options .link-option-edit-cancel {
+.bookmark-group .bookmark .link-options .link-option-edit-cancel {
     color: #F44336;
 }
 
-.bookmark:not(.editable) .link-options .link-option-edit-cancel {
+.bookmark-group .bookmark:not(.editable) .link-options .link-option-edit-cancel {
     display: none;
 }
 
-.bookmark.removed {
+.bookmark-group .bookmark.removed {
     display: none!important;
 }
 
@@ -159,6 +144,6 @@ input[readonly] {
 
 .list-group-item.active,
 .list-group-item.node-folders.node-selected {
-	background-color: #c5aed4!important;
-	border-color: #ae9abc!important;
+    background-color: #c5aed4!important;
+    border-color: #ae9abc!important;
 }
