@@ -58,7 +58,9 @@
                 <form class="navbar-form navbar-left">
                     <div class="form-group is-empty">
                         <input type="text" class="form-control col-md-8" placeholder="Search" id="txtsearch">
-                        <span class="material-input"></span></div>
+                        <span class="material-input"></span>
+                        <span class="badge" id="spcounter" style="display: none">0</span></a>
+                    </div>
                 </form>
                 <ul class="nav navbar-nav navbar-right">
                     <li><a href="javascript:void(0)">Link</a></li>
@@ -78,6 +80,7 @@
         </div>
     </div>
     <div class="container-fluid main-container">
+        <!-- import -->
         <div class="jumbotron" id="divimport">
             <h3>NETSCAPE-Bookmark-file-1</h3>
             <p>TODO spiegare cos'è un file bookmark html</p>
@@ -93,6 +96,7 @@
             </div>
             <p><a class="btn btn-primary btn-lg" href="https://msdn.microsoft.com/en-us/library/aa753582(v=vs.85).aspx">Learn more</a></p>
         </div>
+        <!-- bookmarks -->
         <div class="list-group bookmark-group" id="links"></div>
         <button id="btnadd" type="button" class="btn btn-fab btn-raised btn-primary fixed bottom right" aria-label="add new link" title="add new link"><i class="material-icons">add</i></button>
     </div>
@@ -105,10 +109,10 @@
                 <h4><img width="16" src="{{icon}}"><span class="link-title" data-editable="text">{{text}}</span></h4>
                 <p class="list-group-item-text"><a href="{{href}}" data-editable="href">{{href}}</a></p>
                 <div class="link-options action-secondary">
-                    <a href="#" class="link-option-edit" aria-label="edit bookmark" title="edit bookmark"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>
-                    <a href="#" class="link-option-edit-ok" aria-label="confirm changes" title="confirm changes"><span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span></a>
-                    <a href="#" class="link-option-edit-cancel" aria-label="cancel changes" title="cancel changes"><span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span></a>
-                    <a href="#" class="link-option-remove" aria-label="remove bookmark" title="remove bookmark"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a>
+                    <div class="btn btn-primary btn-xs link-option-edit" title="edit bookmark"><i class="material-icons">edit</i></div>
+                    <div class="btn btn-primary btn-xs link-option-remove" title="delete bookmark"><i class="material-icons">delete</i></div>
+                    <div class="btn btn-primary btn-xs link-option-edit-ok" title="confirm changes"><i class="material-icons">done</i></div>
+                    <div class="btn btn-primary btn-xs link-option-edit-cancel" title="cancel changes"><i class="material-icons">clear</i></div>
                 </div>
                 <div class="link-stars br-theme-bootstrap-stars" data-rating="{{rating}}">
                     <select>
@@ -143,6 +147,8 @@
     var linkItemTemplate;
     // tutti i tag usati
     var allTags = [];
+    // conteggio dei tag
+    var tagCounters = {};
     //
     $(function load() {
         // attivo gli effetti material
@@ -153,23 +159,6 @@
         linkItemTemplate = Handlebars.compile($('#link-item-template').html());
         //
         prepareSearch();
-        // prevengo il refresh della pagina se digitato enter nella casella di ricerca
-        $('#txtsearch').on('keydown', function(event) {
-            if (event.which == 13) {
-                event.preventDefault();
-                event.stopPropagation();
-                performSearch($('#txtsearch').val());
-            }
-        });
-        // alla selezione di #itemsearch ribadisco la ricerca
-        $('#itemsearch').on('click', function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            $(this).addClass('active');
-            var term = $('#txtsearch').data('last-term');
-            $('#txtsearch').val(term);
-            performSearch(term);
-        });
         // gestisco l'upload del file
         $('#ctlfile').on('change', function(event) {
             var ff = event.target.files[0];
@@ -204,6 +193,7 @@
             _.delay(function() {
                 makeLinks($('#links'), parseBookmarkFile(context));
                 toastr.success('Import complete');
+                $('#txtsearch').focus();
             }, 10);
         } else {
             toastr.error('<b>' + file.name + '</b> is not a valid <a href="https://msdn.microsoft.com/en-us/library/aa753582(v=vs.85).aspx">NETSCAPE-Bookmark-file-1</a> file.');
@@ -234,9 +224,7 @@
             // .tap(function() {
             //     this.tagsinput({
             //         typeaheadjs: [{
-            //             hint: true,
-            //             highlight: true,
-            //             minLength: 1
+            //             highlight: true
             //         }, {
             //             source: tagMatcher()
             //         }]
@@ -244,10 +232,12 @@
             // })
             .on('itemAdded', function(event) { // evento di tagsinput
                 allTags = _.union(allTags, event.item);
+                incrementTag(event.item);
                 link.tags.push(event.item);
             })
             .on('itemRemoved', function(event) { // evento di tagsinput
                 link.tags = _.without(link.tags, event.item);
+                decrementTag(event.item);
             })
             .end() // ritorno a .bookmark
             .find('.link-option-edit') // gestisco pulsante edit
@@ -321,9 +311,7 @@
                     .tagsinput({
                         trimValue: true,
                         typeaheadjs: [{
-                            hint: true,
-                            highlight: true,
-                            minLength: 1
+                            highlight: true
                         }, {
                             source: tagMatcher()
                         }]
@@ -416,6 +404,8 @@
             } else { // node
                 var link = $self.find('a').first();
                 var tags = path.split(',');
+                var lastTag = _.last(tags);
+                incrementTag(lastTag);
                 allTags = _.union(allTags, tags);
                 links.push(createLink(link.attr('href'), link.attr('icon'), link.html(), tags));
             }
@@ -436,18 +426,30 @@
     }
 
     function prepareSearch() {
-        var searchEl = $('#txtsearch');
-        searchEl.typeahead({
-            hint: true,
-            highlight: true,
-            minLength: 1
+        var $search = $('#txtsearch');
+        //
+        $search.typeahead({
+            highlight: true
         }, {
             // TODO: la ricerca deve essere più complessa, ora mostra solo i tag che matchano con tutto il testo del campo di ricerca (invece dovrebbe estrarre tutti i tag che matchano tutte le parole)
             source: tagMatcher()
         });
+        // enter: prevengo il refresh della pagina
+        // esc: annullo la ricerca
+        $search.on('keydown keypress', function(event) {
+            if (event.which == 13) {
+                event.preventDefault();
+                event.stopPropagation();
+                performSearch(this.value);
+            } else if (event.which == 27) {
+                // se si pulisce la casella con .value o $().val() viene ripristinato il vecchio valore al blur
+                $(this).typeahead('val', '');
+            }
+        });
+        //        
         Rx.Observable.merge(
-                Rx.Observable.fromEvent(searchEl, 'keyup'),
-                Rx.Observable.fromEvent(searchEl, 'blur'))
+                Rx.Observable.fromEvent($search, 'keyup'),
+                Rx.Observable.fromEvent($search, 'blur'))
             .map(function(event) {
                 return event.target.value.trim();
             })
@@ -463,9 +465,8 @@
         // se il termine di ricerca è vuoto mostro tutto altrimenti solo i bookmark che lo soddisfano
         if (_.isEmpty(term)) {
             $('.bookmark.enabled').show();
+            $('#spcounter').hide();
         } else {
-            // salvo l'ultimo termine di ricerca non vuoto
-            $('#txtsearch').data('last-term', term);
             // ricerca su tutti i link
             var re = new RegExp(term, 'i');
             $('.bookmark.enabled')
@@ -476,11 +477,27 @@
                     return re.test([link.text, link.href, link.tags.join()].join(''));
                 })
                 .tap(function() {
-                    // riporto il numero di link trovati
-                    $('#itemsearch').show().addClass('active').find('.badge').html(this.length);
+                    $('#spcounter').html(this.length + '/' + $('.bookmark.enabled').length).show();
                 })
                 .show();
         }
+    }
+
+    function incrementTag(tag) {
+        return (tagCounters[tag] = (tagCounters[tag] || 0) + 1);
+    }
+
+    function decrementTag(tag) {
+        // se arrivo a zero tolgo il tag dall'oggetto
+        if (tagCounters[tag]) {
+            if (--tagCounters[tag] <= 0) {
+                delete tagCounters[tag];
+                return 0;
+            } else {
+                return tagCounters[tag];
+            }
+        }
+        return 0;
     }
 
     // esegue una funziona all'interno della chain

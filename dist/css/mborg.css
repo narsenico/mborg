@@ -1,25 +1,26 @@
 body {
     font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    background-color: #EEEEEE;
+    background-color: #f9f9f9;
     padding-top: 70px;
 }
 
 .navbar .navbar-brand {
-    color: #EFEFEF;
+    color: #efefef;
     font-weight: bold;
 }
 
 .navbar.navbar-default {
-    background-color: #00BCD4;
+    background-color: #00bcd4;
+    /*box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.2);    */
 }
 
 .btn.btn-fab.btn-primary,
 .dropdown-toggle.btn-primary {
-    background-color: #00BCD4;
+    background-color: #00bcd4;
 }
 
 .btn.btn-fab.btn-primary:hover {
-    background-color: #079FB3;
+    background-color: #079fb3;
 }
 
 .btn.btn-fab.btn-primary:active {
@@ -36,6 +37,14 @@ body {
 .main-container {
     margin-bottom: 100px;
     max-width: 768px;
+    overflow: hidden;
+}
+
+@media screen and (max-width: 768px) {
+    /* altrimenti il ribbon copre i bookmark */
+    .main-container {
+        margin-top: 50px;
+    }
 }
 
 .btn.fixed {
@@ -51,7 +60,7 @@ body {
 }
 
 .bookmark-group .bookmark {
-    background-color: rgba(255, 255, 255, 0.84);
+    background-color: #fff;
     padding: 10px 15px;
     border: solid 1px #ddd;
     margin-bottom: 4px;
@@ -67,19 +76,11 @@ body {
 
 .bookmark-group .bookmark .link-title {
     font-weight: bold;
-    color: #607D8B;
+    color: #607d8b;
 }
 
 .bookmark-group .bookmark:not(:hover) .link-options {
     display: none;
-}
-
-.bookmark-group .bookmark .link-options a {
-    color: #CCCCCC;
-}
-
-.bookmark-group .bookmark .link-options a:hover {
-    color: #337AB7;
 }
 
 .bookmark-group .bookmark .link-stars {
@@ -87,8 +88,8 @@ body {
 }
 
 .bookmark-group .bookmark.editable [data-editable] {
-    border-bottom: dashed 1px #CCCCCC;
-    background-color: #EFEFEF;
+    border-bottom: dashed 1px #cccccc;
+    background-color: #efefef;
 }
 
 .bookmark-group .bookmark.editable .link-options .link-option-edit {
@@ -99,16 +100,8 @@ body {
     display: none;
 }
 
-.bookmark-group .bookmark .link-options .link-option-edit-ok {
-    color: #8BC34A;
-}
-
 .bookmark-group .bookmark:not(.editable) .link-options .link-option-edit-ok {
     display: none;
-}
-
-.bookmark-group .bookmark .link-options .link-option-edit-cancel {
-    color: #F44336;
 }
 
 .bookmark-group .bookmark:not(.editable) .link-options .link-option-edit-cancel {
@@ -120,7 +113,7 @@ body {
 }
 
 .bookmark-group .bookmark .tag {
-    background-color: #00BCD4;
+    background-color: #00bcd4;
 }
 
 .btn-file {
@@ -163,10 +156,16 @@ input[readonly] {
     z-index: 9999
 }
 
+
 /* taginputs colore dell'elemento selezionato con le freccette nel dropdown */
+
 .tt-cursor {
     color: #ffffff;
     text-decoration: none;
     outline: 0;
     background-color: #428bca;
+}
+
+#spcounter {
+    background-color: #00BCD4;
 }
