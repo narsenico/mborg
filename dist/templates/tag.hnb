@@ -1,0 +1,1 @@
+<a href="#" class="btn btn-default btn-xs btn-tag" data-tag="{{text}}">{{text}} <span class="weight">{{weight}}</span></a>
