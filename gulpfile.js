@@ -3,7 +3,7 @@ var serve = require('gulp-serve');
 var watch = require('gulp-watch');
 var htmlmin = require('gulp-htmlmin');
 var uglify = require('gulp-uglify');
-var minifyCss = require('gulp-minify-css');
+var minifyCss = require('gulp-minify-css'); // TODO: usare https://www.npmjs.com/package/gulp-cssnano
 var sourcemaps = require('gulp-sourcemaps');
 var gulpSequence = require('gulp-sequence');
 var del = require('del');
@@ -167,7 +167,7 @@ gulp.task('clean', function() {
 gulp.task('watch', function() {
     gulp.src('src/**/*')
         .pipe(watch('src/**/*', function(vinyl) {
-            console.log(chalk.cyan(vinyl.event || 'start'), path.relative(process.cwd() + '/src', vinyl.path));
+            console.log(chalk.cyan(vinyl.event || 'start'), path.relative(process.cwd(), vinyl.path));
         }))
         .pipe(gulp.dest('dist'));
 });
