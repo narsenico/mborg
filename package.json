@@ -13,6 +13,7 @@
     "gulp": "^3.9.0",
     "gulp-debug": "^2.1.2",
     "gulp-rename": "^1.2.2",
-    "gulp-serve": "^1.2.0"
+    "gulp-serve": "^1.2.0",
+    "gulp-watch": "^4.3.5"
   }
 }

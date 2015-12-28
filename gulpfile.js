@@ -1,6 +1,7 @@
 var gulp = require('gulp');
 var debug = require('gulp-debug');
 var serve = require('gulp-serve');
+var watch = require('gulp-watch');
 
 var jsSrc = [
     'bower_components/bootstrap/dist/js/bootstrap.min.js',
@@ -36,21 +37,34 @@ gulp.task('copy', function() {
     gulp.src(jsSrc)
         .pipe(gulp.dest('dist/js'))
         .pipe(debug({
-            title: 'cp -> '
+            title: 'js  cp -> '
         }));
     gulp.src(cssSrc)
         .pipe(gulp.dest('dist/css'))
         .pipe(debug({
-            title: 'cp -> '
+            title: 'css cp -> '
         }));
     gulp.src(fontsSrc)
         .pipe(gulp.dest('dist/fonts'))
         .pipe(debug({
-            title: 'cp -> '
+            title: 'fnt cp -> '
+        }));
+    gulp.src('src/**/*')
+        .pipe(gulp.dest('dist'))
+        .pipe(debug({
+            title: 'src cp -> '
         }));
 });
 
-gulp.task('serve', serve({
+gulp.task('watch', function() {
+    gulp.src('src/**/*')
+        .pipe(watch('src/**/*', function(vinyl) {
+            console.log('%s (%s)', vinyl.path, vinyl.event || 'start');
+            }))
+        .pipe(gulp.dest('dist'));
+});
+
+gulp.task('serve', ['watch'], serve({
     root: 'dist',
     port: 3001
 }));
