@@ -3,7 +3,7 @@ var serve = require('gulp-serve');
 var watch = require('gulp-watch');
 var htmlmin = require('gulp-htmlmin');
 var uglify = require('gulp-uglify');
-var minifyCss = require('gulp-minify-css'); // TODO: usare https://www.npmjs.com/package/gulp-cssnano
+var cssnano = require('gulp-cssnano');
 var sourcemaps = require('gulp-sourcemaps');
 var gulpSequence = require('gulp-sequence');
 var del = require('del');
@@ -18,6 +18,7 @@ var argv = require('yargs')
 var jsSrc = [
     'bower_components/bootstrap/dist/js/bootstrap.min.js',
     'bower_components/bootstrap-treeview/dist/*.js',
+    'bower_components/bootstrap-tagsinput/dist/bootstrap-tagsinput.js',
     'bower_components/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js*',
     'bower_components/bootstrap-material-design/dist/js/*',
     'bower_components/jquery/dist/*',
@@ -28,7 +29,8 @@ var jsSrc = [
     'bower_components/rxjs/dist/rx.lite.map',
     'bower_components/toastr/toastr.min.js',
     'bower_components/toastr/toastr.js.map',
-    'bower_components/typeahead.js/dist/typeahead.bundle.min.js'
+    'bower_components/typeahead.js/dist/typeahead.bundle.min.js',
+    'bower_components/arrive/minified/arrive.min.js'
 ];
 
 var cssSrc = [
@@ -137,7 +139,7 @@ gulp.task('minify-css', function() {
             verbose: argv.v
         }))
         .pipe(sourcemaps.init())
-        .pipe(minifyCss())
+        .pipe(cssnano())
         // passo il percorso relativo dove verrà creato il file .map 
         // altrimenti il contenuto viene scritto direttamente nel file di origine        
         .pipe(sourcemaps.write('.'))

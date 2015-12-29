@@ -1,6 +1,6 @@
         <div class="list-group-item bookmark enabled filtered">
             <div class="row-content">
-                <h4><img width="16" src="{{icon}}"><span class="link-title" data-editable="text">{{text}}</span></h4>
+                <h4><img width="16" src="{{icon}}"><span class="link-title" data-editable="text">{{{text}}}</span></h4>
                 <p class="list-group-item-text"><a href="{{href}}" data-editable="href">{{href}}</a></p>
                 <div class="link-options action-secondary">
                     <div class="btn btn-primary btn-xs link-option-edit" title="edit bookmark"><i class="material-icons">edit</i></div>
@@ -18,7 +18,7 @@
                     </select>
                 </div>
                 <div class="link-tags">
-                    <input type="text" value="{{tags}}" data-role="tagsinput">
+                    <input type="text" value="{{{tags}}}" data-role="tagsinput">
                 </div>
             </div>
         </div>

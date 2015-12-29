@@ -24,7 +24,7 @@
                 // compilo i template
                 linkItemTemplate = Handlebars.compile(data1[0]);
                 tagButtonTemplate = Handlebars.compile(data2[0]);
-                // inizalizzo
+                // inizializzo
                 init();
             })
             .fail(function() {
@@ -79,7 +79,7 @@
             var url = URL.createObjectURL(blob);
             // TODO: sostituire toastr con un modale dove sarà possibile copiare il json negli appunti
             // oppure scaricare il file
-            toastr.success('<a href="' + url + '" download>Click to download file</a>');
+            toastr.success('<a href="' + url + '" download="mborg_data.json">Click to download file</a>');
         });
         // leggo i dati dal server
         $.getJSON('data/mborg_data.json')
@@ -117,15 +117,19 @@
         container.append(
                 _.chain(links)
                 // per sicurezza non considero i link che non hanno la proprietà href
-                .filter(function(link) { return link.href !== undefined; })
+                .filter(function(link) {
+                    return link.href !== undefined;
+                })
                 .sortBy('text') //  ordino per il testo
                 .map($.proxy(createLinkDom, this)) // creo l'elemento
                 .value())
             .find('.bookmark').tap(fixLinkDom);
         // creo i filtri sui tag
-        _.chain(tagCounters).keys().each(function(tag) {
-            updateTagButton(tag, tagCounters[tag]);
-        });
+        _.chain(tagCounters)
+            .keys()
+            .each(function(tag) {
+                updateTagButton(tag, tagCounters[tag]);
+            });
         //
         $('#spcounter').html($('.bookmark.enabled.filtered').length);
         // console.log('******', (new Date().getTime() - tt));
@@ -147,15 +151,16 @@
             .end() // ritorno a .bookmark            
             .find('.link-tags :text')
             .on('itemAdded', function(event) { // evento di tagsinput
-                allTags = _.union(allTags, event.item);
-                link.tags.push(event.item);
+                link.tags.push(normalizeTagName(event.item));
                 // incremento il contatore del tag e aggiorno i controlli dei filtri
                 updateTagButton(event.item, incrementTag(event.item));
+                toggleIrrilevantTags();
             })
             .on('itemRemoved', function(event) { // evento di tagsinput
-                link.tags = _.without(link.tags, event.item);
+                link.tags = _.without(link.tags, normalizeTagName(event.item));
                 // decremento il contatore del tag e aggiorno i controlli dei filtri
                 updateTagButton(event.item, decrementTag(event.item));
+                toggleIrrilevantTags();
             })
             .end() // ritorno a .bookmark
             .find('.link-option-edit') // gestisco pulsante edit
@@ -304,7 +309,7 @@
 
     function parseBookmarkFile(context) {
         var links = [];
-        parseDL($(context).find('dl').first(), $(context).find('dt:first>h3').html(), links);
+        parseDL($(context).find('dl').first(), normalizeTagName($(context).find('dt:first>h3').html()), links);
         return links;
     }
 
@@ -312,11 +317,10 @@
         context.children('dt').each(function() {
             var $self = $(this);
             if ($self.has('h3').length) { // folder
-                parseDL($self.children('dl'), path + ',' + $self.find('h3').first().html(), links);
+                parseDL($self.children('dl'), path + ',' + normalizeTagName($self.find('h3').first().html()), links);
             } else { // node
                 var link = $self.find('a').first();
                 var tags = path.split(',');
-                allTags = _.union(allTags, tags);
                 links.push(createLink(link.attr('href'), link.attr('icon'), link.html(), tags));
             }
         });
@@ -412,13 +416,40 @@
         } else {
             $('.bookmark.enabled').addClass('filtered');
         }
+        // disabilito i tag che non hanno senso
+        toggleIrrilevantTags();
+    }
+
+    function toggleIrrilevantTags() {
+        // estraggo i tag che hanno almeno un bookmark tra quelli filtrati
+        // cioè è inutile selezionare uno degli altri tag perchè non produrra alcun risultato
+        var uniqTags = _.uniq($('.bookmark.enabled.filtered').map(function() {
+            return $(this).data('source').tags;
+        }).get());
+        // considero solo i tag non selezionati altrimenti diventa difficile togliere il filtro se vengono disattivati
+        $('.btn-tag:not(.selected)')
+            .removeClass('disabled')
+            .not(
+                _.map(uniqTags, function(tag) {
+                    tag = normalizeTagName(tag);
+                    return '.btn-tag[data-tag="' + tag + '"]';
+                }).join(',')
+            )
+            .addClass('disabled');
+    }
+
+    function normalizeTagName(tag) {
+        // il nome del tag deve essere sempre normalizzato altrimenti i filtri non funzionano
+        return tag.toUpperCase();
     }
 
     function incrementTag(tag) {
+        tag = normalizeTagName(tag);
         return (tagCounters[tag] = (tagCounters[tag] || 0) + 1);
     }
 
     function decrementTag(tag) {
+        tag = normalizeTagName(tag);
         // se arrivo a zero tolgo il tag dall'oggetto
         if (tagCounters[tag]) {
             if (--tagCounters[tag] <= 0) {
@@ -432,6 +463,8 @@
     }
 
     function updateTagButton(tag, count) {
+        tag = normalizeTagName(tag);
+        allTags = _.union(allTags, [tag]);
         // se l'elemento non esiste lo creo, se count = 0 lo rimuovo
         var $tag = $('#tags .btn-tag[data-tag="' + tag + '"]');
         if ($tag.length) {
@@ -447,7 +480,6 @@
                 }))
                 .click(function(event) {
                     event.preventDefault();
-                    event.stopPropagation();
                     // aggiorno lo stato del pulsante/tag
                     $(this).toggleClass('btn-danger selected');
                     // filtro i link in base ai tag selezionati
