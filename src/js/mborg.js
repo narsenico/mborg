@@ -339,15 +339,6 @@
 
     function prepareSearch() {
         var $search = $('#txtsearch');
-        //
-        $search.typeahead({
-            highlight: true
-        }, {
-            // TODO: la ricerca deve essere più complessa, 
-            // ora mostra solo i tag che matchano con tutto il testo del campo di ricerca 
-            // (invece dovrebbe estrarre tutti i tag che matchano tutte le parole)
-            source: tagMatcher()
-        });
         // enter: prevengo il refresh della pagina e rieseguo la ricerca
         // esc: annullo la ricerca
         $search.on('keydown keypress', function(event) {
@@ -356,8 +347,7 @@
                 event.stopPropagation();
                 performSearch(this.value);
             } else if (event.which == 27) {
-                // se si pulisce la casella con .value o $().val() viene ripristinato il vecchio valore al blur
-                $(this).typeahead('val', '');
+                $(this).val('');
             }
         });
         //        
