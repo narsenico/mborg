@@ -68,23 +68,37 @@
         $('#btnexp').toggle(Modernizr.bloburls).click(function(event) {
             event.preventDefault();
             event.stopPropagation();
-            //creo un blob contenente tutti i bookmarks in formato json
-            // TODO: il contenuto del json è un po' strano... rivedere la creazione del blob
-            var links = $('.bookmark.enabled').map(function() {
-                return $(this).data('source');
-            });
-            var blob = new Blob([JSON.stringify(links, null, 2)], {
-                type: 'application/json'
-            });
+            // creo un blob contenente tutti i bookmarks in formato json
+            var blob = linksToBlob();
             var url = URL.createObjectURL(blob);
             // TODO: sostituire toastr con un modale dove sarà possibile copiare il json negli appunti
             // oppure scaricare il file
             toastr.success('<a href="' + url + '" download="mborg_data.json">Click to download file</a>');
         });
+        // gestisco il pulsante di salvataggio
+        $('#btnsave').toggle(window.FormData && Modernizr.filereader).click(function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            // creo un blob dai links in formato json e lo invio al server come se fosse un file
+            var blob = linksToBlob();
+            var fd = new FormData();
+            // NB: il blob viene inviato con un nome casuale, rinominarlo lato server
+            fd.append('mborg_data', blob);
+            $.ajax({
+                type: 'POST',
+                url: '/save',
+                data: fd,
+                processData: false,
+                contentType: false
+            }).then(function() {
+                toastr.success('Data saved');
+            });
+            // TODO: gestire upload fail
+        });
         // leggo i dati dal server
         $.getJSON('data/mborg_data.json')
             .then(function(data) {
-                // data è un oggetto del tipo { "0": <link>, "1": <link>, ... }
+                // data è un oggetto con la struttura { "0": <link>, "1": <link>, ... }
                 $('#divimport').hide();
                 _.delay(function() {
                     makeLinks($('#links'), _.values(data));
@@ -94,8 +108,18 @@
             .fail(function() {
                 $('#divimport').show();
             });
-        // TODO: bloccare tutto se !Modernizr.filereader
     } // end init
+
+    function linksToBlob() {
+        // TODO: il contenuto del json è un po' strano... rivedere la creazione del blob
+        var links = $('.bookmark.enabled').map(function() {
+            return $(this).data('source');
+        });
+        var blob = new Blob([JSON.stringify(links, null, 2)], {
+            type: 'application/json'
+        });
+        return blob;
+    }
 
     function loadFile(file, event) {
         if (/^\<\!DOCTYPE NETSCAPE\-Bookmark\-file\-1\>/.test(event.target.result)) {
