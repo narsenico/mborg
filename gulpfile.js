@@ -10,10 +10,12 @@ var del = require('del');
 var path = require('path');
 var through = require('through2');
 var chalk = require('chalk');
+var dateFormat = require('dateformat');
 var argv = require('yargs')
     .alias('p', 'port') // serve port
     .alias('v', 'verbose') // copy verbose
     .argv;
+var spawn = require('child_process').spawn;
 
 var jsSrc = [
     'bower_components/bootstrap/dist/js/bootstrap.min.js',
@@ -169,7 +171,8 @@ gulp.task('clean', function() {
 gulp.task('watch', function() {
     gulp.src('src/**/*')
         .pipe(watch('src/**/*', function(vinyl) {
-            console.log(chalk.cyan(vinyl.event || 'start'), path.relative(process.cwd(), vinyl.path));
+            console.log('[%s] %s %s', chalk.gray(dateFormat('HH:MM:ss.l')),
+                chalk.magenta(vinyl.event || 'start'), chalk.cyan(path.relative(process.cwd(), vinyl.path)));
         }))
         .pipe(gulp.dest('dist'));
 });
@@ -179,29 +182,41 @@ gulp.task('serve', serve({
     port: argv.port || 3001
 }));
 
+gulp.task('server', function() {
+    // avvio il web server express
+    var server = spawn('node', ['app.js', '-p', argv.port || 3001], {
+        stdio: [
+            0, // uso stdin del parent
+            'inherit' // stdout ereditato dal parent
+        ],
+        env: process.env
+    });
+    console.log(chalk.yellow('Tip:'), 'press q or quit to stop server');
+    // stdin del parent
+    process.stdin.on('data', function(chunk) {
+        var line = (chunk && chunk.toString());
+        if (/^\s*(q|quit)\s*$/.test(line)) {
+            console.log('exit...');
+            server && server.kill();
+            process.exit();
+        }
+    });
+});
+
 gulp.task('copy', gulpSequence('copy-js', 'copy-css', 'copy-fonts', 'copy-src'));
 gulp.task('minify', gulpSequence('minify-html', 'minify-css', 'minify-js'));
-gulp.task('dev', gulpSequence('clean', 'copy', ['watch', 'serve']));
+gulp.task('dev', gulpSequence('clean', 'copy', ['watch', 'server']));
 gulp.task('prod', gulpSequence('clean', 'copy', 'minify'));
-
-// gulp.task('test', function() {
-//     gulp.src('dist/**/*')
-//         .pipe(debug({
-//             title: '**',
-//             verbose: argv.verbose
-//         }))
-//         .pipe(gulp.dest('dist'));
-// });
 
 gulp.task('default', function() {
     console.log('');
     console.log('gulp', chalk.magenta('watch'), '                 ', chalk.gray(': watch src/'));
-    console.log('gulp', chalk.magenta('serve'), ' ', chalk.yellow('[-p <port>]'), '   ', chalk.gray(': serve dist/'));
+    console.log('gulp', chalk.magenta('server'), '', chalk.yellow('[-p <port>]'), '   ', chalk.gray(': serve dist/'));
     console.log('gulp', chalk.magenta('copy'), '  ', chalk.yellow('[-v|--verbose]'), '', chalk.gray(': copy src and bower reps into dist/'));
     console.log('gulp', chalk.magenta('minify'), '', chalk.yellow('[-v|--verbose]'), '', chalk.gray(': minify/uglify html, scripts and css'));
     console.log('gulp', chalk.magenta('clean'), '                 ', chalk.gray(': clean dist/'));
     console.log('');
-    console.log('gulp', chalk.magenta('dev'), '   ', chalk.yellow('[-v|--verbose]'), '', chalk.gray(': clean, copy, watch, serve'));
+    console.log('gulp', chalk.magenta('dev'), '   ', chalk.yellow('[-v|--verbose]'), '', chalk.gray(': clean, copy, watch, server'));
     console.log('gulp', chalk.magenta('prod'), '  ', chalk.yellow('[-v|--verbose]'), '', chalk.gray(': clean, copy, minify'));
     console.log('');
 });

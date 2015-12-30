@@ -18,6 +18,7 @@
         $.material.init();
         // opzioni per i toast
         toastr.options.positionClass = 'toast-bottom-left';
+        toastr.options.preventDuplicates = true;
         // carico i template, li compilo e procedo con l'init
         $.when($.get('templates/bookmark.hnb'), $.get('templates/tag.hnb'))
             .then(function(data1, data2) {
@@ -33,6 +34,8 @@
     }); // end load
 
     function init() {
+        // preparo il salvataggio automatico
+        prepareAutoSave();
         // preparo il campo di ricerca
         prepareSearch();
         // gestisco l'upload del file
@@ -79,18 +82,7 @@
         $('#btnsave').toggle(window.FormData && Modernizr.filereader).click(function(event) {
             event.preventDefault();
             event.stopPropagation();
-            // creo un blob dai links in formato json e lo invio al server come se fosse un file
-            var blob = linksToBlob();
-            var fd = new FormData();
-            // NB: il blob viene inviato con un nome casuale, rinominarlo lato server
-            fd.append('mborg_data', blob);
-            $.ajax({
-                type: 'POST',
-                url: '/save',
-                data: fd,
-                processData: false,
-                contentType: false
-            }).then(function() {
+            performSave().then(function() {
                 toastr.success('Data saved');
             });
             // TODO: gestire upload fail
@@ -179,12 +171,14 @@
                 // incremento il contatore del tag e aggiorno i controlli dei filtri
                 updateTagButton(event.item, incrementTag(event.item));
                 toggleIrrilevantTags();
+                requestSave();
             })
             .on('itemRemoved', function(event) { // evento di tagsinput
                 link.tags = _.without(link.tags, normalizeTagName(event.item));
                 // decremento il contatore del tag e aggiorno i controlli dei filtri
                 updateTagButton(event.item, decrementTag(event.item));
                 toggleIrrilevantTags();
+                requestSave();
             })
             .end() // ritorno a .bookmark
             .find('.link-option-edit') // gestisco pulsante edit
@@ -273,7 +267,21 @@
             .addClass('editable')
             .find('[data-editable]')
             .attr('contenteditable', true)
-            .first().focus(); // focus al primo elemento editabile
+            .first()
+            .one('focus', function() {
+                // solo la prima volta, seleziono tutto il contenuto
+                if (document.createRange) {
+                    (function(el) {
+                        requestAnimationFrame(function() {
+                            var range = document.createRange();
+                            range.selectNodeContents(el);
+                            var sel = window.getSelection();
+                            sel.removeAllRanges();
+                            sel.addRange(range);
+                        });
+                    })(this);
+                }
+            }).focus(); // focus al primo elemento editabile
     }
 
     function endEditMode(link, $bookmark, cancel) {
@@ -291,6 +299,7 @@
                     .removeClass('new')
                     .find('[data-editable=text]').copyHtmlTo(link, 'text').end()
                     .find('[data-editable=href]').copyHtmlTo(link, 'href').attr('href', link.href);
+                requestSave();
             }
             // esco dalla modalità di edit
             $bookmark
@@ -307,6 +316,7 @@
         var link = $bookmark.data('source');
         $bookmark.removeClass('enabled').addClass('removed');
         link.removed = true;
+        requestSave();
         // il link verrà  ripristinato se viene cliccato il toast prima che scomapia
         var undoKey = undo.add($bookmark.get(0));
         toastr.warning('<b>' + link.text + '</b> removed (click to undo)').click(function() {
@@ -314,6 +324,7 @@
             if ($undo.length) {
                 $undo.data('source').removed = false;
                 $undo.addClass('enabled').removeClass('removed');
+                requestSave();
             }
         });
     }
@@ -326,6 +337,11 @@
 
     function prepareNewLink() {
         var link = createLink('http://', '', 'Bookmark title');
+        // assegno in automatico tutti i tag selezionati
+        link.tags = $('.btn-tag.selected').map(function() {
+            return $(this).attr('data-tag');
+        }).get() || [];
+        // inizio la fase di edit
         beginEditMode(link,
             fixLinkDom.bind(createLinkDom(link).addClass('new'))()
             .appendTo($('#links')).show());
@@ -503,6 +519,37 @@
                 })
                 .appendTo('#tags');
         }
+    }
+
+    function prepareAutoSave() {
+        Rx.Observable.merge(
+                Rx.Observable.fromEvent($(document), 'auto-save'))
+            .debounce(500) //se non succede più niente per 500ms prosegue
+            .subscribe(function() {
+                performSave().then(function(data) {
+                    toastr.info('All data saved');
+                });
+            });
+    }
+
+    function performSave() {
+        // creo un blob dai links in formato json e lo invio al server come se fosse un file
+        var blob = linksToBlob();
+        var fd = new FormData();
+        // NB: il blob viene inviato con un nome casuale, rinominarlo lato server
+        // TODO: salvare il file con il nome utente
+        fd.append('mborg_data', blob);
+        return $.ajax({
+            type: 'POST',
+            url: '/save',
+            data: fd,
+            processData: false,
+            contentType: false
+        });
+    }
+
+    function requestSave() {
+        $(document).trigger('auto-save');
     }
 
     // esegue una funziona all'interno della chain

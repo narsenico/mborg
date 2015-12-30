@@ -25,7 +25,7 @@ var app = express();
 var port = argv.port || 3001;
 // log di tutte le richieste
 app.use(function log(req, res, next) {
-    console.log(dateFormat('HH:MM:ss.l'), chalk.magenta(req.method), chalk.cyan(req.originalUrl));
+    console.log('[%s] %s %s', chalk.gray(dateFormat('HH:MM:ss.l')), chalk.magenta(req.method), chalk.cyan(req.originalUrl));
     next();
 });
 // serve tutte le risorse statiche in dist
@@ -37,5 +37,5 @@ app.post('/save', upload.single('mborg_data'), function(req, res, next) {
 });
 // mi metto in ascolto
 app.listen(port, function() {
-    console.log('listening on port', chalk.cyan(port));
+    console.log('[%s] %s %s', chalk.gray(dateFormat('HH:MM:ss.l')), 'listening on port', chalk.cyan(port));
 });
