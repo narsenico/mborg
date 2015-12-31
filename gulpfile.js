@@ -32,7 +32,8 @@ var jsSrc = [
     'bower_components/toastr/toastr.min.js',
     'bower_components/toastr/toastr.js.map',
     'bower_components/typeahead.js/dist/typeahead.bundle.min.js',
-    'bower_components/arrive/minified/arrive.min.js'
+    'bower_components/arrive/minified/arrive.min.js',
+    'bower_components/scrollup/dist/jquery.scrollUp.min.js'
 ];
 
 var cssSrc = [

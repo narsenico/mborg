@@ -14,6 +14,10 @@ body {
     /*box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.2);    */
 }
 
+.navbar.navbar-default .navbar-toggle {
+    float: left;
+}
+
 .btn.btn-fab.btn-primary,
 .dropdown-toggle.btn-primary {
     background-color: #00bcd4;
@@ -109,8 +113,7 @@ body {
 }
 
 .bookmark-group .bookmark.removed,
-.bookmark-group .bookmark:not(.filtered)
- {
+.bookmark-group .bookmark:not(.filtered) {
     display: none!important;
 }
 
@@ -167,6 +170,7 @@ input[readonly] {
     font-size: 0.6em;
 }
 
+
 /* taginputs colore dell'elemento selezionato con le freccette nel dropdown */
 
 .tt-cursor {
@@ -183,4 +187,24 @@ input[readonly] {
 #divimport {
     max-width: 768px;
     margin: 0 auto;
+}
+
+#tags {
+    max-width: 768px;
+}
+
+.gototop {
+    position: fixed;
+    left: 50%;
+    bottom: 0px;
+    margin-left: -80px;
+    width: 160px;
+    height: 25px;
+    border-radius: 2px 2px 0px 0px;
+    background-color: #333;
+    color: #fff;
+    line-height: 25px;
+    text-align: center;
+    font-size: 10px;
+    cursor: pointer;
 }

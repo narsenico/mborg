@@ -14,6 +14,8 @@
     // e per renderizzare correttamente gli elementi con material 
     // (https://github.com/FezVrasta/bootstrap-material-design#arrivejs-support) 
     $(function load() {
+        //
+        $.createGoToTop();
         // attivo gli effetti material
         $.material.init();
         // opzioni per i toast
@@ -573,6 +575,33 @@
         if (index === $end.length - 1) index = 0;
         return $end.eq(this.index() + 1);
     };
+    // crea un link per il ritorno a inizio pagina
+    $.createGoToTop = function() {
+        var $body = $('body');
+        var $document = $(document);
+        // creo il link, lo aggiungo al body e assegno l'evento click che riporta la pagina all'inizio
+        var lnk = $('<div class="gototop" title="torna all\'inizio"><span class="glyphicon glyphicon-arrow-up"></span></div>')
+        .appendTo($body)
+        .hide()
+        .click( function() {
+            $('body, html').animate( {
+                scrollTop: 0 
+            }, 500);
+        });
+        // gestisco l'evento scroll sul documento, la trasparenza del link è data dal rapporto
+        // tra l'altezza della pagina e lo scroll
+        $(document).scroll( function(ev) {
+            var op = $document.scrollTop() / $document.height();
+            if (op == 0) {
+                lnk.hide();
+            } else {
+                lnk.fadeTo(0, op);
+            }
+        });
+        //forzo l'evento scroll per impostare la trasparenza la prima volta
+        $document.trigger('scroll');
+        return this;
+    }; //end createGoToTop    
     //
     var undo = (function() {
         var map = {};
