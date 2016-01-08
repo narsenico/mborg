@@ -29,7 +29,7 @@
     <![endif]-->
 </head>
 
-<body class="mborg">
+<body class="mborg not-logged">
     <div class="navbar navbar-default navbar-fixed-top">
         <div class="container-fluid">
             <div class="navbar-header">
@@ -42,10 +42,11 @@
             </div>
             <div class="navbar-collapse collapse navbar-responsive-collapse">
                 <ul class="nav navbar-nav">
-                    <li><a href="#" id="btnsave" title="save data"><i class="material-icons">save</i></a></li>
-                    <li><a href="#" id="btnexp" title="download data"><i class="material-icons">file_download</i></a></li>
+                    <li class="if-logged"><a href="#" id="btnsave" title="save data"><i class="material-icons">save</i></a></li>
+                    <li class="if-logged"><a href="#" id="btnexp" title="download data"><i class="material-icons">file_download</i></a></li>
+                    <li class="if-logged"><a href="#" id="btnlogout" title="logout"><i class="material-icons">exit_to_app</i></a></li>
                 </ul>
-                <form class="navbar-form navbar-left">
+                <form class="navbar-form navbar-left if-logged">
                     <div class="form-group is-empty">
                         <input type="text" class="form-control col-md-8" placeholder="Search" id="txtsearch">
                         <span class="material-input"></span>
@@ -59,6 +60,24 @@
         </div>
     </div>
     <div class="container-fluid main-container">
+        <!-- login -->
+        <div class="jumbotron" id="divlogin" style="display: none">
+            <h3>Login</h3>
+            <form>
+                <div class="form-group label-floating">
+                    <label class="control-label" for="username">E-mail</label>
+                    <input class="form-control" id="username" name="username" type="text">
+                </div>
+                <div class="form-group label-floating">
+                    <label class="control-label" for="password">Password</label>
+                    <input class="form-control" id="password" name="password" type="password">
+                </div>
+                <div class="form-group">
+                    <button type="reset" class="btn btn-default">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </form>
+        </div>
         <!-- import -->
         <div class="jumbotron" id="divimport" style="display: none">
             <h3>NETSCAPE-Bookmark-file-1</h3>
@@ -85,7 +104,7 @@
                 <div class="list-group bookmark-group" id="links"></div>
             </div>
         </div>
-        <button id="btnadd" type="button" class="btn btn-fab btn-raised btn-primary fixed bottom right" aria-label="add new link" title="add new link"><i class="material-icons">add</i></button>
+        <button id="btnadd" type="button" class="btn btn-fab btn-raised btn-primary fixed bottom right if-logged" aria-label="add new link" title="add new link"><i class="material-icons">add</i></button>
     </div>
     <!-- github ribbon https://github.com/blog/273-github-ribbons -->
     <a href="https://github.com/narsenico/mborg"><img class="ribbon" src="images/github_ribbon.png" height="149" width="149"></a>

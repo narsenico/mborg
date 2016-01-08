@@ -2,6 +2,8 @@ body {
     font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
     background-color: #f9f9f9;
     padding-top: 70px;
+    color: #3a3a3a;
+    background: #fcfefa;
 }
 
 .navbar .navbar-brand {
@@ -16,6 +18,11 @@ body {
 
 .navbar.navbar-default .navbar-toggle {
     float: left;
+}
+
+.main-container .jumbotron {
+    max-width: 768px;
+    margin: 0 auto;
 }
 
 .btn.btn-fab.btn-primary,
@@ -184,11 +191,6 @@ input[readonly] {
     background-color: #00BCD4;
 }
 
-#divimport {
-    max-width: 768px;
-    margin: 0 auto;
-}
-
 #tags {
     max-width: 768px;
 }
@@ -207,4 +209,8 @@ input[readonly] {
     text-align: center;
     font-size: 10px;
     cursor: pointer;
+}
+
+.not-logged .if-logged {
+    display: none;
 }

@@ -164,6 +164,12 @@ gulp.task('minify-js', function() {
 });
 
 gulp.task('clean', function() {
+    return del(['dist/*', '!dist/data']).then(function(paths) {
+        console.log('dist cleaned (except data)');
+    });
+});
+
+gulp.task('clean:all', function() {
     return del('dist/*').then(function(paths) {
         console.log('dist cleaned');
     });
@@ -207,7 +213,7 @@ gulp.task('server', function() {
 gulp.task('copy', gulpSequence('copy-js', 'copy-css', 'copy-fonts', 'copy-src'));
 gulp.task('minify', gulpSequence('minify-html', 'minify-css', 'minify-js'));
 gulp.task('dev', gulpSequence('clean', 'copy', ['watch', 'server']));
-gulp.task('prod', gulpSequence('clean', 'copy', 'minify'));
+gulp.task('prod', gulpSequence('clean:all', 'copy', 'minify'));
 
 gulp.task('default', function() {
     console.log('');
@@ -218,6 +224,6 @@ gulp.task('default', function() {
     console.log('gulp', chalk.magenta('clean'), '                 ', chalk.gray(': clean dist/'));
     console.log('');
     console.log('gulp', chalk.magenta('dev'), '   ', chalk.yellow('[-v|--verbose]'), '', chalk.gray(': clean, copy, watch, server'));
-    console.log('gulp', chalk.magenta('prod'), '  ', chalk.yellow('[-v|--verbose]'), '', chalk.gray(': clean, copy, minify'));
+    console.log('gulp', chalk.magenta('prod'), '  ', chalk.yellow('[-v|--verbose]'), '', chalk.gray(': clean:all, copy, minify'));
     console.log('');
 });

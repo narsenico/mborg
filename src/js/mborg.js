@@ -30,9 +30,7 @@
                 // inizializzo
                 init();
             })
-            .fail(function() {
-                // TODO: gestire errore caricamento template, nascondere #divimport
-            });
+            .fail(manageFail().create());
     }); // end load
 
     function init() {
@@ -84,25 +82,68 @@
         $('#btnsave').toggle(window.FormData && Modernizr.filereader).click(function(event) {
             event.preventDefault();
             event.stopPropagation();
-            performSave().then(function() {
-                toastr.success('Data saved');
-            });
-            // TODO: gestire upload fail
+            performSave()
+                .then(function() {
+                    toastr.success('Data saved');
+                })
+                .fail(manageFail().create());
         });
-        // leggo i dati dal server
-        $.getJSON('data/mborg_data.json')
+        // gestisco logout
+        $('#btnlogout').click(function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            $.get('/auth/logout').then(function() {
+                location.reload();
+            }).fail(manageFail().create());
+        });
+        // gestisco login
+        $('#divlogin form').on('submit', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            // eseguo un post al servizio di login: 200 ok, 400 login fallita
+            $.postJSON('/auth/login', {
+                    "username": this.username.value,
+                    "password": this.password.value
+                })
+                .then(function(data) {
+                    loggedIn(data);
+                })
+                .fail(manageFail().status(401, function() {
+                    toastr.error('Invalid username or password');
+                }).create());
+        });
+        // verifico che l'utente sia loggato
+        $.getJSON('/auth/user')
             .then(function(data) {
-                // data è un oggetto con la struttura { "0": <link>, "1": <link>, ... }
-                $('#divimport').hide();
-                _.delay(function() {
-                    makeLinks($('#links'), _.values(data));
-                    $('#txtsearch').focus();
-                }, 10);
+                loggedIn(data);
             })
-            .fail(function() {
-                $('#divimport').show();
-            });
+            .fail(manageFail().status(403, function() {
+                $('#divlogin').show().find('input[name=username]').focus();
+            }).create());
     } // end init
+
+    function loggedIn(user) {
+        $('#divlogin').hide();
+        $('body.mborg').removeClass('not-logged');
+        toastr.success('Welcome ' + user.username);
+        // se esistono dei dati utente li posso richiedere
+        if (user.dataExists) {
+            $.getJSON('/data/bookmarks')
+                .then(function(data) {
+                    // data è un oggetto con la struttura { "0": <link>, "1": <link>, ... }
+                    $('#divimport').hide();
+                    _.delay(function() {
+                        makeLinks($('#links'), _.values(data));
+                        $('#txtsearch').focus();
+                    }, 10);
+                })
+                .fail(function() {
+                    $('#divimport').show();
+                });
+        } else {
+            $('#divimport').show();
+        }
+    }
 
     function linksToBlob() {
         // TODO: il contenuto del json è un po' strano... rivedere la creazione del blob
@@ -543,7 +584,7 @@
         fd.append('mborg_data', blob);
         return $.ajax({
             type: 'POST',
-            url: '/save',
+            url: '/data/bookmarks',
             data: fd,
             processData: false,
             contentType: false
@@ -552,6 +593,31 @@
 
     function requestSave() {
         $(document).trigger('auto-save');
+    }
+
+    function manageFail() {
+        var stcbs = {};
+        return {
+            status: function(status, callback) {
+                if (_.isString(callback)) {
+                    callback = (function(text) {
+                        return function() {
+                            toastr.error(text);
+                        };
+                    })(callback);
+                }
+                stcbs[status] = callback;
+                return this;
+            },
+            create: function(callback) {
+                this.status('default', callback || function(jqxhr, textStatus, error) {
+                    toastr.error(jqxhr.status + ': ' + textStatus + ', ' + error);
+                });
+                return function(jqxhr, textStatus, error) {
+                    (stcbs[jqxhr.status] || stcbs['default'] || $.noop)(jqxhr, textStatus, error);
+                };
+            }
+        };
     }
 
     // esegue una funziona all'interno della chain
@@ -581,27 +647,38 @@
         var $document = $(document);
         // creo il link, lo aggiungo al body e assegno l'evento click che riporta la pagina all'inizio
         var lnk = $('<div class="gototop" title="torna all\'inizio"><span class="glyphicon glyphicon-arrow-up"></span></div>')
-        .appendTo($body)
-        .hide()
-        .click( function() {
-            $('body, html').animate( {
-                scrollTop: 0 
-            }, 500);
-        });
+            .appendTo($body)
+            .hide()
+            .click(function() {
+                $('body, html').animate({
+                    scrollTop: 0
+                }, 500);
+            });
         // gestisco l'evento scroll sul documento, la trasparenza del link è data dal rapporto
         // tra l'altezza della pagina e lo scroll
-        $(document).scroll( function(ev) {
+        $(document).scroll(function(ev) {
             var op = $document.scrollTop() / $document.height();
-            if (op == 0) {
+            if (op === 0) {
                 lnk.hide();
             } else {
                 lnk.fadeTo(0, op);
             }
         });
-        //forzo l'evento scroll per impostare la trasparenza la prima volta
+        // forzo l'evento scroll per impostare la trasparenza la prima volta
         $document.trigger('scroll');
         return this;
-    }; //end createGoToTop    
+    }; //end createGoToTop
+    //
+    $.postJSON = function(url, data) {
+        return $.ajax({
+            url: url,
+            type: 'POST',
+            data: JSON.stringify(data),
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json'
+        });
+    };
+
     //
     var undo = (function() {
         var map = {};

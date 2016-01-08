@@ -1,30 +1,39 @@
 {
-  "name": "mborg",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "node app.js"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "chalk": "^1.1.1",
-    "dateformat": "^1.0.12",
-    "del": "^2.2.0",
-    "express": "^4.13.3",
-    "gulp": "^3.9.0",
-    "gulp-cssnano": "^2.0.0",
-    "gulp-htmlmin": "^1.3.0",
-    "gulp-rename": "^1.2.2",
-    "gulp-sequence": "^0.4.4",
-    "gulp-serve": "^1.2.0",
-    "gulp-sourcemaps": "^1.6.0",
-    "gulp-uglify": "^1.5.1",
-    "gulp-watch": "^4.3.5",
-    "multer": "^1.1.0",
-    "through2": "^2.0.0",
-    "yargs": "^3.31.0"
-  }
+    "name": "mborg",
+    "version": "1.0.0",
+    "description": "Bookmarks organizer",
+    "main": "app.js",
+    "scripts": {
+        "test": "node app.js"
+    },
+    "keywords": ["bookmark", "organizer"],
+    "author": "narsenico <not_amon-dev@yahoo.it>",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/narsenico/mborg.git"
+    }
+    "license": "ISC",
+    "dependencies": {
+        "chalk": "^1.1.1",
+        "dateformat": "^1.0.12",
+        "yargs": "^3.31.0",
+        "body-parser": "^1.14.2",
+        "lodash": "^3.10.1",
+        "multer": "^1.1.0",
+        "express": "^4.13.3",
+        "express-session": "^1.12.1"
+    },
+    "devDependencies": {
+        "del": "^2.2.0",
+        "gulp": "^3.9.0",
+        "gulp-cssnano": "^2.0.0",
+        "gulp-htmlmin": "^1.3.0",
+        "gulp-rename": "^1.2.2",
+        "gulp-sequence": "^0.4.4",
+        "gulp-serve": "^1.2.0",
+        "gulp-sourcemaps": "^1.6.0",
+        "gulp-uglify": "^1.5.1",
+        "gulp-watch": "^4.3.5",
+        "through2": "^2.0.0"
+    }
 }
